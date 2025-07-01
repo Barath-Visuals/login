@@ -7,7 +7,7 @@ import Home from "./Pages/home";
 import axios from "axios";
 
 export default function AppRoutes() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState("guest");
   const [profileComplete, setProfileComplete] = useState(false);
   const navigate = useNavigate();
 
@@ -15,6 +15,8 @@ export default function AppRoutes() {
   useEffect(() => {
     const checkUserProfile = async () => {
       const storedToken = localStorage.getItem("token");
+
+      console.log("token : ", storedToken)
       if (!storedToken) {
         setUser(null);
         setProfileComplete(false);
@@ -27,6 +29,7 @@ export default function AppRoutes() {
             Authorization: `Bearer ${storedToken}`, // ✅ Must include Bearer!
           },
         });
+        console.log("User profile data:", res.data);
 
         if (res.data?.profileComplete) {
           setProfileComplete(true);
@@ -41,14 +44,13 @@ export default function AppRoutes() {
     };
 
     checkUserProfile();
-  }, [user]);
+  }, []);
 
 
   const handleLogin = ({ user, token }) => {
     setUser(user);
     localStorage.setItem("token", token);
     localStorage.setItem("user", JSON.stringify(user));
-    localStorage.setItem("token", access_token);
   };
 
   const handleProfileComplete = () => {
@@ -57,10 +59,12 @@ export default function AppRoutes() {
   };
 
   const handleLogout = () => {
-    setUser(null);
+    //setUser(null);
+    console.log("logging out....")
     setProfileComplete(false);
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    navigate("/");
   };
 
   return (
@@ -68,15 +72,15 @@ export default function AppRoutes() {
       <Route
         path="/"
         element={
-          user ? (
-            profileComplete ? (
-              <Navigate to="/home" replace />
-            ) : (
-              <Navigate to="/profile-update" replace />
-            )
-          ) : (
+          //user ? (
+            //profileComplete ? (
+            //  <Navigate to="/home" replace />
+            //) : (
+            //  <Navigate to="/profile-update" replace />
+            //)
+          //) : (
             <Navigate to="/login" replace />
-          )
+          //)
         }
       />
 
@@ -88,22 +92,22 @@ export default function AppRoutes() {
       <Route
         path="/profile-update"
         element={
-          user && !profileComplete ? (
+          //user && !profileComplete ? (
             <ProfileUpdate onProfileComplete={handleProfileComplete} />
-          ) : (
-            <Navigate to="/home" replace />
-          )
+          //) : (
+          //  <Navigate to="/home" replace />
+          //)
         }
       />
 
       <Route
         path="/home"
         element={
-          user && profileComplete ? (
+          //user && profileComplete ? (
             <Home user={user} onLogout={handleLogout} />
-          ) : (
-            <Navigate to="/login" replace />
-          )
+          //) : (
+          //  <Navigate to="/login" replace />
+          //)
         }
       />
 

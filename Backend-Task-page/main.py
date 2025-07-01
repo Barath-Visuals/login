@@ -6,10 +6,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from bson import ObjectId
 import bcrypt
 from jose import JWTError, jwt
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
+from zoneinfo import ZoneInfo
+from Pages.clientEntries import router as clientEntriesRouter
 
 app = FastAPI()
 
+app.include_router(clientEntriesRouter)
 
 app.add_middleware(
     CORSMiddleware,
@@ -27,6 +30,8 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 60
 client = MongoClient("mongodb://localhost:27017")
 db = client["task_app"]
 user_collection = db["tasks"]
+profile_collection = db["profile"]
+login_logs_collection = db["login_logs"]
 
 
 class User(BaseModel):
@@ -35,7 +40,6 @@ class User(BaseModel):
 
 
 class UserDetails(BaseModel):
-    username: str
     name: str
     age: str
     phone: str
@@ -71,7 +75,7 @@ def signup(user : User):
     })
     new_user = user_collection.find_one({"_id": result.inserted_id})
     return{
-        "message": "unser created successfully",
+        "message": "user created successfully",
         "user": help_user(new_user)
     }
 
@@ -85,12 +89,36 @@ def login(user: User):
     if not bcrypt.checkpw(user.password.encode('utf-8'), found_user["password"].encode('utf-8')):
         raise HTTPException(status_code=401, detail="invalid username or password")
     
-    Login_time = datetime.utcnow()
-    user_collection.update_one(
-        {"_id": found_user["_id"]},
-        {"$push": {"attendance": {"timestamp": Login_time}}}
-    )
+    #now_Kolkata = datetime.now(ZoneInfo("Asia/Kolkata"))
+    
+    #current_time = now_Kolkata.time()
+    #morning_time = time(10, 30)
+    #afternoon_start = time(13, 0)
+    #afternoon_end = time(13, 30)
 
+    #if current_time <= morning_time:
+        #login_type = "morning"
+    #elif afternoon_start <= current_time <= afternoon_end:
+        #login_type = "afternoon"
+    #else:
+        #raise HTTPException(status_code=403, detail="Login only allowed before 10:30AM or between 1–2PM")
+    
+    #start_of_date = datetime(now_Kolkata.year, now_Kolkata.month, now_Kolkata.day, tzinfo=ZoneInfo("Asia/Kolkata"))
+    #end_of_date = start_of_date + timedelta(days=1)
+
+    # existing_logs = login_logs_collection.find_one({
+    #     "username": user.username,
+    #     "login_time": {"$gte": start_of_date, "$lt": end_of_date }
+    # })
+    # if existing_logs:
+    #     raise HTTPException(status_code=403, detail="You have already logged in today")
+    
+    # login_logs_collection.insert_one({
+    #     "username": user.username,
+    #     "login_time": now_Kolkata,
+    #     "login_type": login_type,
+    #     "logout_time": None
+    # })
     access_token = create_access_token(
         data={"sub": found_user["username"]},
         expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -126,40 +154,42 @@ def get_current_user(request: Request):
 
 @app.post("/update_profile")
 def update_profile(details: UserDetails, current_user: dict = Depends(get_current_user)):
-    if current_user["username"] != details.username:
-        raise HTTPException(status_code=403, detail="Forbidden")
+    print(current_user["username"])
+    print(details)
+    #if current_user["username"] != details.username:
+        #raise HTTPException(status_code=403, detail="Forbidden")
 
     found_user = user_collection.find_one({"username": current_user["username"]})
     if not found_user:
         raise HTTPException(status_code=404, detail="user not found")
     
-    update_fields = {
-        "name": details.name,
-        "age": details.age,
-        "phone": details.phone,
-        "address": details.address
-    }
-
-    user_collection.update_one(
-        {"_id": found_user["_id"]},
-        {"$set": update_fields}
+    # Update the user collection with the new details
+    profile_collection.insert_one(
+        {
+            "username": current_user["username"],
+            "name": details.name,
+            "age": details.age,
+            "phone": details.phone,
+            "address": details.address
+        }
     )
-
+   
     return{
         "message": "profile updated successfully",
-        "profile": update_fields
     }
 
 
 @app.get("/user/profile")
 def get_profile(current_user: dict = Depends(get_current_user)):
-    user = user_collection.find_one({"username": current_user["username"]})
+    user = profile_collection.find_one({"username": current_user["username"]})
 
     if not user:
         return {"profileComplete": False}
 
     # Check if essential profile info is present (e.g., "name")
     profile_complete = bool(user.get("name"))
+
+
 
     return {
         "profileComplete": profile_complete,
@@ -169,3 +199,18 @@ def get_profile(current_user: dict = Depends(get_current_user)):
         "phone": user.get("phone"),
         "address": user.get("address"),
     }
+
+@app.post("/logout")
+def logout(current_user: dict = Depends(get_current_user)):
+     
+    logout_time = datetime.utcnow()
+
+    result = login_logs_collection.update_one(
+        {"username": current_user["username"], "logout_time": None},
+        {"$set": {"logout_time": logout_time}}
+    )
+
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="No active login session found")
+    
+    return {"message": "Logout recorded successfully", "logout_time": logout_time}

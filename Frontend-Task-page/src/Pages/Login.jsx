@@ -28,7 +28,8 @@ export default function Login({ onLogin }) {
 
             setPassword("");
         } catch (error) {
-            alert(error.response?.data?.detail || "login failed");
+            //alert(error.response?.data?.detail || "login failed");
+            console.error("Login error:", error);
         }
     };
 

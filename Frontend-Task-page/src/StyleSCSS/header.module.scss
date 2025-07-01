@@ -1,0 +1,60 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.MainContainer {
+    width: 100vw;
+    padding: 20px;
+    background-color: #e2d4f7; /* your purple shade */
+}
+
+.Container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.LogoIcon {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.Logo {
+    width: clamp(40px, 5vw, 50px);
+    height: clamp(40px, 5vw, 50px);
+    border-radius: 50%;
+    background-color: black;
+}
+
+.ProfileContainer {
+    display: flex;
+    align-items: center;
+    background-color: white;
+    border-radius: 100px;
+    padding: 5px 0px;
+    height: clamp(40px, 6vw, 50px);
+}
+
+.EmployeeId {
+    font-size: clamp(1rem, 2.5vw, 1.5rem);
+    font-weight: 500;
+    margin: clamp(10px, 2vw, 15px);
+    line-height: 1;
+    color: black;
+}
+
+.EmployeeIcon {
+    width: clamp(40px, 5vw, 50px);
+    height: clamp(40px, 5vw, 50px);
+    border-radius: 50%;
+    background-color: black;
+}
+@media (max-width: 450px) {
+    .MainContainer{
+        padding: 10px;
+    }
+}
