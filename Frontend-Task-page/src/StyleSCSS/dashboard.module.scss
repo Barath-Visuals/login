@@ -18,9 +18,10 @@
 .Container{
     display: flex;
     width: 100%;
+    min-width: 250px;
     height: 100%;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     padding: 20px;
     background-color: #F4EEFE;
     border-radius: 10px;
@@ -32,8 +33,32 @@
         margin-right: 20px;
 
         h1{
-            font-size: 4rem;
+            font-size: 5rem;
             font-weight: 500;
         }
+
+        span{
+            font-size: 1.2rem;
+        }
+    }
+
+    .icon{
+        width: auto;
+        height: auto;
+        display: flex;
+        margin-left: 20px;
+        margin-top: 20px;
+
+        .icon_n{
+            width: 100%;
+            height: 100%;
+            align-items: flex-start;
+            justify-content: flex-start;
+        }
+    }
+}
+@media (max-width: 500px) {
+    .dashboardContainer{
+        flex-direction: column;
     }
 }

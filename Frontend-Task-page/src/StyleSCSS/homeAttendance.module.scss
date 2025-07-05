@@ -1,0 +1,29 @@
+/* styles.module.css */
+
+.Container {
+  background-color: #f6f0ff; /* light purple */
+  padding: 20px;
+  border-radius: 10px;
+  width: 100%;
+  margin: 0 auto;
+  color: black;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th, td {
+  padding: 12px 16px;
+  text-align: center;
+}
+
+th {
+  background-color: #f6f0ff; /* Keep header same as container */
+  font-weight: bold;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #f9f5ff; /* Optional: slight row coloring for readability */
+}

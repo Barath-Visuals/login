@@ -66,25 +66,25 @@
 
   // Top bar (or diagonal for X)
   &::before {
-    top: 24px;
+    top: 28px;
     transform: translateX(-50%) rotate(0deg);
   }
 
   // Bottom bar (or diagonal for X)
   &::after {
-    top: 34px;
-    transform: translateX(-50%) rotate(0deg);
+    top: 28px;
+    transform: translateX(-50%) rotate(90deg);
   }
 
   // Animate to "×"
   &.open::before {
     top: 28px;
-    transform: translateX(-50%) rotate(45deg);
+    transform: translateX(-50%) rotate(-45deg);
   }
 
   &.open::after {
     top: 28px;
-    transform: translateX(-50%) rotate(-45deg);
+    transform: translateX(-50%) rotate(45deg);
   }
 }
 

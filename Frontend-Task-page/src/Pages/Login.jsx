@@ -18,6 +18,8 @@ export default function Login({ onLogin }) {
 
             localStorage.setItem("token", access_token);
             localStorage.setItem("user", JSON.stringify(user));
+            localStorage.setItem('username', user.username);
+
 
             onLogin({ user, token: access_token });
 

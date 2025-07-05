@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from bson import ObjectId
 import bcrypt
 from jose import JWTError, jwt
-from datetime import datetime, timedelta, time
+from datetime import datetime, timedelta, time, date
 from zoneinfo import ZoneInfo
 from Pages.clientEntries import router as clientEntriesRouter
 
@@ -22,18 +22,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
+#JWT 
 SECRET_KEY = "mytask73391638281111042110@!@#$%^&*()_+=-<>?/.,][{]"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
+
+#MongoDb Setup
 client = MongoClient("mongodb://localhost:27017")
 db = client["task_app"]
 user_collection = db["tasks"]
 profile_collection = db["profile"]
 login_logs_collection = db["login_logs"]
 
-
+#Models
 class User(BaseModel):
     username: str
     password: str
@@ -67,11 +69,14 @@ def signup(user : User):
 
     #hashed the password
     hashed_password = bcrypt.hashpw(user.password.encode('utf-8'), bcrypt.gensalt())
+    signup_date = datetime.now(ZoneInfo('Asia/Kolkata'))
 
     #insert the new user and password
     result = user_collection.insert_one({
         "username": user.username,
-        "password": hashed_password.decode('utf-8')
+        "password": hashed_password.decode('utf-8'),
+        "signup_date": signup_date,
+        "created_at": datetime.now(ZoneInfo('Asia/Kolkata'))
     })
     new_user = user_collection.find_one({"_id": result.inserted_id})
     return{
@@ -89,36 +94,39 @@ def login(user: User):
     if not bcrypt.checkpw(user.password.encode('utf-8'), found_user["password"].encode('utf-8')):
         raise HTTPException(status_code=401, detail="invalid username or password")
     
-    #now_Kolkata = datetime.now(ZoneInfo("Asia/Kolkata"))
+    now_Kolkata = datetime.now(ZoneInfo("Asia/Kolkata"))
     
-    #current_time = now_Kolkata.time()
-    #morning_time = time(10, 30)
-    #afternoon_start = time(13, 0)
-    #afternoon_end = time(13, 30)
+    current_time = now_Kolkata.time()
+    morning_time = time(10, 30)
+    afternoon_start = time(13, 0)
+    afternoon_end = time(13, 30)
 
-    #if current_time <= morning_time:
-        #login_type = "morning"
-    #elif afternoon_start <= current_time <= afternoon_end:
-        #login_type = "afternoon"
-    #else:
-        #raise HTTPException(status_code=403, detail="Login only allowed before 10:30AM or between 1–2PM")
+    if current_time <= morning_time:
+        login_type = "morning"
+        arrival_status = "on_Time"
+    elif afternoon_start <= current_time <= afternoon_end:
+        login_type = "afternoon"
+        arrival_status = "Late"
+    else:
+        raise HTTPException(status_code=403, detail="Login only allowed before 10:30AM or between 1–2PM")
     
-    #start_of_date = datetime(now_Kolkata.year, now_Kolkata.month, now_Kolkata.day, tzinfo=ZoneInfo("Asia/Kolkata"))
-    #end_of_date = start_of_date + timedelta(days=1)
+    start_of_date = datetime(now_Kolkata.year, now_Kolkata.month, now_Kolkata.day, tzinfo=ZoneInfo("Asia/Kolkata"))
+    end_of_date = start_of_date + timedelta(days=1)
 
-    # existing_logs = login_logs_collection.find_one({
-    #     "username": user.username,
-    #     "login_time": {"$gte": start_of_date, "$lt": end_of_date }
-    # })
-    # if existing_logs:
-    #     raise HTTPException(status_code=403, detail="You have already logged in today")
+    existing_logs = login_logs_collection.find_one({
+        "username": user.username,
+        "login_time": {"$gte": start_of_date, "$lt": end_of_date }
+    })
+    if existing_logs:
+        raise HTTPException(status_code=403, detail="You have already logged in today")
     
-    # login_logs_collection.insert_one({
-    #     "username": user.username,
-    #     "login_time": now_Kolkata,
-    #     "login_type": login_type,
-    #     "logout_time": None
-    # })
+    login_logs_collection.insert_one({
+        "username": user.username,
+        "login_time": now_Kolkata,
+        "login_type": login_type,
+        "arrival_status": arrival_status,
+        "logout_time": None
+    })
     access_token = create_access_token(
         data={"sub": found_user["username"]},
         expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -126,14 +134,30 @@ def login(user: User):
     
     # Check if profile details exist (example: check if 'name' field exists)
     profile_exists = bool(found_user.get("name"))
+
+    on_time_count = login_logs_collection.count_documents({
+        "username": user.username,
+        "arrival_status": "on_time"
+    })
+
+    late_count = login_logs_collection.count_documents({
+        "username": user.username,
+        "arrival_status": "late"
+    })
     
     return {
         "message": "logged in successfully",
         "access_token": access_token,
         "user": help_user(found_user),
         "token_type": "bearer",
-        "profile_exists": profile_exists   # Add this flag here
+        "profile_exists": profile_exists,
+        "login_time": now_Kolkata.isoformat(),
+        "arrival_status": arrival_status,  # Add this
+        "on_time_count": on_time_count,
+        "late_count": late_count,
+        "logout_time": None
     }
+
 
 def get_current_user(request: Request):
     auth_header = request.headers.get("Authorization")
@@ -149,6 +173,25 @@ def get_current_user(request: Request):
         return {"username": username}
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
+
+
+@app.get("/attendance_logs/{username}")
+def get_attendance_logs(username: str, limit: int = 15, current_user: dict = Depends(get_current_user)):
+    #if username != current_user["username"]:
+        #raise HTTPException(status_code=403, detail="You are not authorized to view this user's")
+    logs_cursor = login_logs_collection.find({"username": username}).sort("login_time", -1).limit(limit)
+
+    logs = []
+    for log in logs_cursor:
+        logs.append({
+            "login_time": log["login_time"].isoformat(),
+            "login_type": log.get("login_type", ""),
+            "arrival_status": log.get("arrival_status", ""),
+            "logout_time": log.get("logout_time")
+        })
+
+    logs = logs[::-1]  # Oldest to newest
+    return {"logs": logs}
 
 
 
@@ -181,15 +224,21 @@ def update_profile(details: UserDetails, current_user: dict = Depends(get_curren
 
 @app.get("/user/profile")
 def get_profile(current_user: dict = Depends(get_current_user)):
+    print("Current user from token:", current_user)
     user = profile_collection.find_one({"username": current_user["username"]})
 
     if not user:
-        return {"profileComplete": False}
+        return {
+            "profileComplete": False,
+            "username": current_user["username"],  # Always return the username from token
+            "name": None,
+            "age": None,
+            "phone": None,
+            "address": None
+        }
 
     # Check if essential profile info is present (e.g., "name")
     profile_complete = bool(user.get("name"))
-
-
 
     return {
         "profileComplete": profile_complete,
@@ -214,3 +263,43 @@ def logout(current_user: dict = Depends(get_current_user)):
         raise HTTPException(status_code=404, detail="No active login session found")
     
     return {"message": "Logout recorded successfully", "logout_time": logout_time}
+
+
+@app.get("/attendance_summary")
+def attendance_summary(current_user: dict = Depends(get_current_user)):
+    user = user_collection.find_one({"username": current_user["username"]})
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    signup_date = user.get("signup_date")
+    if not signup_date:
+        raise HTTPException(status_code=400, detail="Signup date not found")
+    
+    if isinstance(signup_date, datetime):
+        signup_date = signup_date.date()
+    
+    today = datetime.now(ZoneInfo('Asia/Kolkata')).date()
+    total_days = (today - signup_date).days + 1
+    attendance_days = login_logs_collection.count_documents({"username": current_user["username"]})
+    leave_days = (total_days - attendance_days)
+    attendance_percentage = (attendance_days / total_days) * 100 if total_days > 0 else 0
+    on_time_count = login_logs_collection.count_documents({
+        "username": current_user["username"],
+        "arrival_status": "on_time"
+    })
+
+    late_count = login_logs_collection.count_documents({
+        "username": current_user["username"],
+        "arrival_status": "late"
+    })
+    return {
+        "username": current_user["username"],
+        "signup_date": signup_date,
+        "total_days": total_days,
+        "leave_days": leave_days,
+        "attendance_days": attendance_days,
+        "attendance_percentage": round(attendance_percentage, 2),
+        "on_time_count": on_time_count,
+        "late_count": late_count
+    }
