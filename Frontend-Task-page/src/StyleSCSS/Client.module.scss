@@ -1,0 +1,254 @@
+.Container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+
+    .Header{
+        display: flex;
+        justify-content: space-between;
+        padding: 10px;
+        align-items: center;
+        min-width: 100%;
+        border-radius: 10px;
+
+        .title{
+            align-items: center;
+            display: flex;
+            justify-content: flex-start;
+            color: #FAF9F6;
+            width: 100%;
+            
+            
+            h1{
+                font-size: 2.5rem;
+                font-weight: 500;
+            }
+        }
+    }
+
+    .leftContent{
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 20px;
+        width: 100%;
+        padding: 5px;
+
+        .search{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #1F1F1F;
+            box-shadow: 0px 4px 7.4px 0px rgba(0, 0, 0, 0.1);
+            padding: 5px;
+            border-radius:7px;
+
+            input{
+                width: 300px;
+                height: 30px;
+                background-color: transparent;
+                margin-left: 8px;
+                color: rgb(255, 255, 255);
+                font-weight: 500;
+                font-size: 1rem;
+            }
+
+            input:focus{
+                outline: none;
+            }
+
+            .button{
+                display: flex;
+                margin: 0px 5px;
+                align-items: center;
+                background-color: transparent;
+            }
+        }
+
+        .filter{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: transparent;
+            padding: 5px;
+            width: max-content;
+            background-color: #e4d2ff;
+            border-radius: 5px;
+
+            .icon{
+                width: 100%;
+                min-width: 30px;
+                height: 30px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+            }
+        }
+
+        .addEntry{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 11px 15px;
+            background-color:#1F1F1F;
+            box-shadow: 0px 4px 7.4px 0px rgba(0, 0, 0, 0.1);
+            border-radius: 7px;
+            cursor: pointer;
+            gap: 10px;
+
+            .icon{
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .buttonTitle{
+                font-size: 1rem;
+                font-weight: 550;
+                color: #9747FF;
+            }
+        }
+    }
+
+    .client{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        margin-top: 1.5rem;
+    }
+
+    .popUpBoxContain{
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        backdrop-filter: blur(3px);
+
+        .popUpBox{
+            background: rgb(255, 255, 255);
+            padding: 1.5rem;
+            border-radius: 12px;
+            position: relative;
+            width: 400px;
+            max-width: 100%;
+
+            .button{
+                display: flex;
+                justify-content: flex-end;
+                align-items: center;
+                width: 100%;
+                padding: 5px;
+                margin-bottom: 10px;
+
+                button{
+                    background-color: transparent;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    padding: 5px;
+                    border-radius: 5px;
+                }
+            }
+        }
+    }
+}
+
+@media (max-width: 1200px){
+    .Container .leftContent .addEntry {
+        padding: 12px !important;
+    }
+    .Container .leftContent .addEntry .buttonTitle{
+        display: none;
+    }
+}
+
+@media (max-width: 992px) {
+    .Container {
+        .Header {
+            flex-direction: column;
+            align-items: flex-start;
+            background-color: transparent;
+
+            .title {
+                width: 100%;
+                margin-bottom: 10px;
+                h1 {
+                    font-size: 2rem;
+                }
+            }
+        }
+
+        .leftContent {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+
+            .search {
+                width: 100%;
+                input {
+                    width: 100%;
+                    font-size: 0.9rem;
+                }
+            }
+
+            .filter {
+                justify-content: space-between;
+                width: 100%;
+            }
+
+            .addEntry {
+                justify-content: center;
+                width: 100%;
+                padding: 10px;
+            }
+        }
+
+        .client {
+            padding: 15px;
+            //overflow-x: auto;
+            font-size: 0.9rem;
+        }
+
+        .popUpBoxContain .popUpBox {
+            width: 90%;
+        }
+    }
+}
+
+@media (max-width: 576px) {
+    .Container {
+
+        .Header{
+            background-color: transparent;
+            //padding: 10px;
+        }
+
+        .Header .title h1 {
+            font-size: 1.5rem;
+        }
+
+        .leftContent {
+            padding: 0;
+            .search input {
+                font-size: 0.85rem;
+            }
+
+            .addEntry {
+                padding: 10px;
+            }
+        }
+
+        .client {
+            font-size: 0.8rem;
+            padding: 10px;
+        }
+    }
+}

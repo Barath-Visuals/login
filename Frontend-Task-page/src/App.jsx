@@ -3,7 +3,10 @@ import React, { useState, useEffect } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import Login from "./Pages/Login";
 import ProfileUpdate from "./Pages/ProfileUpdate";
-import Home from "./Pages/home";
+import AsciiArt from "./Components/WaterMark.jsx"
+import UserRoute from "./Pages/UserRoute.jsx";
+import AdminRoute from "./Pages/AdminRoute.jsx";
+import HRStaff from "./Pages/HR_Route.jsx";
 import axios from "axios";
 
 export default function AppRoutes() {
@@ -31,11 +34,8 @@ export default function AppRoutes() {
         });
         console.log("User profile data:", res.data);
 
-        if (res.data?.profileComplete) {
-          setProfileComplete(true);
-        } else {
-          setProfileComplete(false);
-        }
+        setUser(res.data.username)
+        setProfileComplete(Boolean(!!res.data.profileComplete));
       } catch (error) {
         console.error("Error checking profile completeness", error);
         setUser(null);
@@ -46,16 +46,50 @@ export default function AppRoutes() {
     checkUserProfile();
   }, []);
 
+  if (user === undefined || profileComplete === undefined) {
+    return <div>Loading...</div>;
+  }
 
-  const handleLogin = ({ user, token }) => {
+  useEffect(() => {
+    console.log(AsciiArt)
+  }, [])
+
+  const handleLogin = async ({ user, token }) => {
     setUser(user);
     localStorage.setItem("token", token);
     localStorage.setItem("user", JSON.stringify(user));
+
+    try {
+      const res = await axios.get("http://localhost:8000/user/profile", {
+        headers: {
+          Authorization: `Bearer ${token}`, // ✅ Must include Bearer!
+        }
+      })
+      setProfileComplete(Boolean(res.data.profileComplete))
+
+      const role = localStorage.getItem("role")
+      if (role === "admin") {
+        navigate("/admin")
+      } else if (res.data.profileComplete) {
+        navigate("/user")
+      } else {
+        navigate("/profile-update")
+      }
+    } catch (error) {
+      console.error("Error checking profile completeness", error);
+      setProfileComplete(false);
+    }
   };
 
   const handleProfileComplete = () => {
     setProfileComplete(true);
-    navigate("/home");
+    const role = localStorage.getItem("role");
+
+    if(role === "admin") { 
+      navigate("/admin");
+    } else { 
+      navigate("/user");
+    }
   };
 
   const handleLogout = () => {
@@ -64,23 +98,43 @@ export default function AppRoutes() {
     setProfileComplete(false);
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    navigate("/");
+    localStorage.removeItem("role");
+    localStorage.removeItem("username");
+    sessionStorage.removeItem("staffData")
+    navigate("/login");
   };
 
+  const token = localStorage.getItem("token")
+  const role = localStorage.getItem("role")
+  useEffect(() => {
+    console.log(token, role)
+  },[])
+
+  useEffect(() => {
+    console.log("user:", user);
+    console.log("role:", role);
+    console.log("profileComplete:", profileComplete);
+  }, [user, role, profileComplete]);
+
   return (
+
     <Routes>
       <Route
         path="/"
         element={
-          //user ? (
-            //profileComplete ? (
-            //  <Navigate to="/home" replace />
-            //) : (
-            //  <Navigate to="/profile-update" replace />
-            //)
-          //) : (
-            <Navigate to="/login" replace />
-          //)
+          user && role === "admin" ? (
+            <Navigate to="/admin" replace />
+          ) : user && role === "HR" ? (
+            <Navigate to="/hr" replace />
+          ) : user && role === "Manager" ? (
+            <Navigate to="/manager" replace />
+          ): user && profileComplete ? (
+            <Navigate to="/user" replace/>
+          ) : user ? (
+            <Navigate to="profile-update" replace/>
+          ) : (
+            <Navigate to= "/login" replace/>
+          )
         }
       />
 
@@ -92,23 +146,48 @@ export default function AppRoutes() {
       <Route
         path="/profile-update"
         element={
-          //user && !profileComplete ? (
-            <ProfileUpdate onProfileComplete={handleProfileComplete} />
-          //) : (
-          //  <Navigate to="/home" replace />
-          //)
+          user //if user is exist
+            ? role === "admin" // if user is admin
+              ? <Navigate to="/admin" replace /> 
+            : profileComplete // else if profile is complete
+              ? <Navigate to="/user" replace /> 
+            : <ProfileUpdate onProfileComplete={handleProfileComplete} /> 
+          : <Navigate to="/login" replace />
         }
       />
 
       <Route
-        path="/home"
-        element={
-          //user && profileComplete ? (
-            <Home user={user} onLogout={handleLogout} />
-          //) : (
-          //  <Navigate to="/login" replace />
-          //)
+        path="/user/*"
+        element={ user && (role === "Worker"|| role === "staff" || role === "Designer")
+          ? ( profileComplete
+            ? <UserRoute user={user} onLogout={handleLogout} /> 
+            : <Navigate to="/profile-update" replace />
+          
+          ) : (
+            <Navigate to="/login" replace />
+          )
         }
+      />
+
+      <Route
+        path="/admin/*"
+        element={ user && role === "admin" ? (
+          <AdminRoute user={user} onLogout={handleLogout}/>
+        ) : (
+          <Navigate to="/login" replace />)
+          
+        }
+      />
+
+      <Route
+        path="/hr/*"
+        element={ user && role === "HR"
+          ? ( profileComplete 
+            ? <HRStaff user={user} onLogout={handleLogout}/>
+            : <Navigate to="/profile-update" replace />
+        ):(
+          <Navigate to="/login" replace />
+        )}
       />
 
       <Route path="*" element={<Navigate to="/" replace />} />

@@ -1,0 +1,92 @@
+.signupcontainer {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  //background-color: #000;
+  //padding-left: 100px; // to make room for the left sidebar
+
+  .signupcard {
+    background: #fff;
+    border-radius: 30px;
+    padding: 30px;
+    width: 420px;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+    text-align: center;
+
+    .signuptitle {
+      font-size: 2.5rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #000;
+      text-align: left;
+    }
+
+    .signupform {
+      display: flex;
+      flex-direction: column;
+
+      input {
+        width: 100%;
+        padding: 15px;
+        margin-bottom: 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 14px;
+        background-color: transparent;
+        color: #000;
+
+        &:focus {
+          outline: none;
+          border-color: #aaa;
+        }
+      }
+
+      button {
+        width: 100%;
+        padding: 15px;
+        background-color: #000;
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+
+        &:hover {
+          background-color: #333;
+        }
+      }
+    }
+
+    .signupmessage {
+      margin-top: 12px;
+      color: rgb(5, 168, 10);
+      font-size: 14px;
+    }
+  }
+}
+
+@media (max-width: 450px) {
+  .signupcontainer{
+    .signupcard{
+      padding: 20px;
+      max-width: 300px;
+
+      .signuptitle{
+        font-size: 24px;
+      }
+
+      .signupform{
+        input{
+          padding: 10px;
+          margin-bottom: 8px;
+        }
+      }
+
+      button{
+        padding: 10px;
+      }
+    }
+  }
+}

@@ -11,10 +11,14 @@ export default function dashboard() {
         <div className={styles.dashboardContainer}>
             <div className={styles.dashboardSub}>
                 <TotalDay/>
+            </div>
+            <div className={styles.dashboardSub}>
                 <Time/>
             </div>
             <div className={styles.dashboardSub}>
                 <Absent/>
+            </div>
+            <div className={styles.dashboardSub}>
                 <Late/>
             </div>
         </div>

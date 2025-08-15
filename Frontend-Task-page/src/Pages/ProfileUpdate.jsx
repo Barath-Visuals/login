@@ -18,18 +18,28 @@ const ProfileUpdate = ({ onProfileComplete }) => {
     const navigate = useNavigate();
 
      useEffect(() => {
-         const fetchUserDetails = async () => {
-             try {
-                 const response = await axios.get("http://localhost:8000/user/profile", {
-                     headers: { Authorization: `Bearer ${token}` },
-                 });
-                 setUserDetails(response.data); // Set the existing user details here
-             } catch (error) {
-                 console.error("Error fetching user details", error);
-             }
-         };
-         fetchUserDetails();
-     },[token]);
+
+        if (!token) {
+            navigate("/login");
+            return;
+        }
+
+        const fetchUserDetails = async () => {
+            try {
+                const response = await axios.get("http://localhost:8000/user/profile", {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                setUserDetails(response.data); // Set the existing user details here
+            } catch (error) {
+                console.error("Error fetching user details", error);
+                if(error.response?.status === 401) { 
+                    localStorage.removeItem("token")
+                    navigate("/login")
+                }
+            }
+        };
+        fetchUserDetails();
+    },[token, navigate]);
 
     const handleChange = (e) => {
         const {name, value} = e.target;
@@ -38,7 +48,7 @@ const ProfileUpdate = ({ onProfileComplete }) => {
             [name]: value,
         }));
     };
-
+    const role = localStorage.getItem("role")
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -56,9 +66,12 @@ const ProfileUpdate = ({ onProfileComplete }) => {
 
             // Call a callback if needed to update parent state
             onProfileComplete?.();
-
             // Navigate to home after update
-            navigate("/home");
+            if (role === "admin") {
+                navigate("/admin")
+            }
+            else {navigate("/home")}
+            
         } catch (err) {
             setError("Failed to update profile. Please try again.");
         }

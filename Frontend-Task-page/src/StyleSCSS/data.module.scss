@@ -1,0 +1,102 @@
+.entryTable__container {
+  background-color: #1F1F1F;
+  box-shadow: 0px 4px 7.4px 0px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  width: 100%;
+  overflow-x: auto;
+  margin: 0 auto;
+  color: black;
+
+  .entryTable__table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  .loader_wrapper{
+    position: fixed; /* take up full screen */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .loader{
+    position: relative;
+    width: 20px;
+    height: 20px;
+    transform: scale(0.5);
+  }
+
+  .loader div {
+    transform-origin: 40px 40px;
+    animation: fade 1.2s linear infinite;
+  }
+
+  .loader div:after {
+    content: " ";
+    display: block;
+    position: absolute;
+    top: 3px;
+    left: 37px;
+    width: 6px;
+    height: 18px;
+    border-radius: 20px;
+    background: white; /* White so it shows on dark background */
+  }
+
+  .loader div:nth-child(1) { transform: rotate(0deg); animation-delay: -1.1s; }
+  .loader div:nth-child(2) { transform: rotate(45deg); animation-delay: -1s; }
+  .loader div:nth-child(3) { transform: rotate(90deg); animation-delay: -0.9s; }
+  .loader div:nth-child(4) { transform: rotate(135deg); animation-delay: -0.8s; }
+  .loader div:nth-child(5) { transform: rotate(180deg); animation-delay: -0.7s; }
+  .loader div:nth-child(6) { transform: rotate(225deg); animation-delay: -0.6s; }
+  .loader div:nth-child(7) { transform: rotate(270deg); animation-delay: -0.5s; }
+  .loader div:nth-child(8) { transform: rotate(315deg); animation-delay: -0.4s; }
+
+  @keyframes fade {
+    0%{opacity: 1;}
+    100%{opacity: 0.2;}
+  }
+
+  .entryTable__th,
+  .entryTable__td {
+    padding: 12px 16px;
+    text-align: center;
+  }
+
+  .entryTable__th{
+    background-color: #121212;
+  }
+
+  .entryTable__td{
+    background-color: #1F1F1F;
+    border-bottom: 1px solid black;
+    color: #FAF9F6;
+  }
+
+  .entryTable__theadRow {
+    background-color: #1F1F1F;
+    font-weight: bold;
+  }
+}
+
+@media (max-width: 500px) {
+  .entryTable__container {
+    .entryTable__th {
+      padding: 8px 5px;
+      font-size: 10px;
+    }
+
+    .loader{
+      transform: scale(0.3) !important;
+    }
+
+    .entryTable__td {
+      font-size: 10px;
+      padding: 8px 5px;
+    }
+  }
+}
