@@ -39,6 +39,18 @@ export default function ClientEntryData ({ searchText, reload}) {
         fetchClientData();
 
     },[token, reload, searchText]);
+
+    const formatIST = (isoString) => {
+        const date = new Date(isoString); // use the passed value
+        return new Intl.DateTimeFormat("en-IN", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+            timeZone: "Asia/Kolkata"
+        }).format(date);
+    };
+
+    
     return(
         <div className={styles.entryTable__container}>
             <table className={styles.entryTable__table}>
@@ -72,8 +84,8 @@ export default function ClientEntryData ({ searchText, reload}) {
                                     <td className={styles.entryTable__td}>{entry.client_name}</td>
                                     <td className={styles.entryTable__td}>{entry.folder_type}</td>
                                     <td className={styles.entryTable__td}>{entry.design_type}</td>
-                                    <td className={styles.entryTable__td}>{entry.start_date}</td>
-                                    <td className={styles.entryTable__td}>{entry.end_date}</td>
+                                    <td className={styles.entryTable__td}>{formatIST(entry.start_date)}</td>
+                                    <td className={styles.entryTable__td}>{formatIST(entry.end_date)}</td>
                                 </tr>
                             ))
                         )

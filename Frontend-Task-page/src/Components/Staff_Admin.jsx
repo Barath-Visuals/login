@@ -64,13 +64,13 @@ export default function Staff_Admin() {
     }
 
     const fetchStaff = async () => {
-        setLoading(true)
+        if(firstLoad) setLoading(true)
 
         const cachedData = sessionStorage.getItem("staffData")
         if (cachedData){
             setStaff(JSON.parse(cachedData))
             setLoading(false)
-            //return;
+            return;
         }
 
         const startTime = Date.now()
@@ -80,25 +80,28 @@ export default function Staff_Admin() {
             });
 
             sessionStorage.setItem("staffData", JSON.stringify(response.data))
-            console.log("Fetched staff data:", response.data);
+            // console.log("Fetched staff data:", response.data);
             if(firstLoad){
                 const elasped = Date.now() - startTime;
                 const remainig = Math.max(0, 2000 - elasped)
                 await new Promise(resolve => setTimeout(resolve, remainig))
-                setFirstLoad(false)
             }
             setStaff(response.data);
         } catch (error) {
             console.error(error);
         } finally {
             setLoading(false)
+            setFirstLoad(false)
         }
     }
     
 
     useEffect(() => {
         if (token){
-            fetchStaff()
+            if(firstLoad){
+                sessionStorage.removeItem("staffData");
+            } 
+            fetchStaff();
         }
     }, [reload, token])
 
@@ -106,10 +109,19 @@ export default function Staff_Admin() {
         <>
             <div className={styles.title}><span>Staff Management</span></div>
             <div className={styles["staffTable-container"]}>
+                {/* {loading && (
+                    <div className={styles.loader_wrapper}>
+                        <div className={styles.loader}>
+                            <div></div><div></div><div></div><div></div>
+                            <div></div><div></div><div></div><div></div>
+                        </div>
+                    </div>
+                )} */}
                     <table className={styles.staffTable}>
                         <thead className={styles.staffTable__thead}>
                         <tr className={styles.staffTable__tr}>
                             <th className={styles.staffTable__th}>Staff</th>
+                            <th className={styles.staffTable__th}>Date</th>
                             <th className={styles.staffTable__th}>Role</th>
                             <th className={styles.staffTable__th}>Status</th>
                             {role === "admin" ? (
@@ -124,15 +136,18 @@ export default function Staff_Admin() {
                         </thead>
                         <tbody className={styles.staffTable__tbody}>
                             {loading ? (
-                                <>
-                                    <div className={styles.loader_wrapper}>
+                                <tr className={styles.loaderRow}>
+                                    <td colSpan={role === "admin" ? 6 : 4} style={{ textAlign: "center" }}>
+                                        <div className={styles.loader_wrapper}>
                                         <div className={styles.loader}>
                                             <div></div><div></div><div></div><div></div>
                                             <div></div><div></div><div></div><div></div>
                                         </div>
-                                    </div>
-                                </>
-                            ):(
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                ) : staff.length > 0 ? (
                                 staff.map((user, index) => {
                                     const isEditing = editingUser === user.username;
                                     return (
@@ -145,10 +160,21 @@ export default function Staff_Admin() {
                                                             <path fillRule="evenodd" clipRule="evenodd" d="M10 0C11.3132 0 12.6136 0.258646 13.8268 0.761189C15.0401 1.26373 16.1425 2.00032 17.0711 2.92891C17.9996 3.85749 18.7362 4.95988 19.2388 6.17314C19.7413 7.3864 20 8.68676 20 10C20 15.5228 15.5228 20 10 20C4.47717 20 0 15.5228 0 10C0 4.47717 4.47717 0 10 0ZM11 11H9C6.52429 11 4.39884 12.4994 3.48211 14.6398C4.93261 16.6737 7.31142 18 10 18C12.6885 18 15.0673 16.6737 16.5179 14.6396C15.6012 12.4994 13.4757 11 11 11ZM10 3C8.34313 3 7 4.34315 7 6C7 7.65684 8.34313 9 10 9C11.6568 9 13 7.65684 13 6C13 4.34315 11.6569 3 10 3Z" fill="#000"/>
                                                         </svg>
                                                     </div>
-                                                    <span className={styles.staffTable__username}>{user.username}</span>
+                                                    <span className={styles.staffTable__username}>{user.name}</span>
                                                 </div>
                                             </div>
                                         </td>
+
+                                        <td className={styles.staffTable__td}>
+                                            <div className={styles.staffTable__userConatiiner}>
+                                                <div className={styles.staffTable__user}>
+                                                    <div className={styles.staffTable__roleContainer}>
+                                                        <span className={styles.staffTable__role} >{new Date(user.created_at).toLocaleDateString("en-GB", {day : "2-digit", month : "short", year : "numeric"})}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+
                                         <td className={styles.staffTable__td}>
                                             {isEditing && role === "admin" ? (
                                                 <select
@@ -253,6 +279,12 @@ export default function Staff_Admin() {
                                     </tr>
                                     );
                                 })
+                            ) : (
+                                <tr>
+                                    <td colSpan="6" style={{ textAlign: "center", padding: "1rem" }}>
+                                        No staff found
+                                    </td>
+                                </tr>
                             )}
                         </tbody>
                     </table>

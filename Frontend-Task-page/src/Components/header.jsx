@@ -31,7 +31,7 @@ export default function header() {
                 </div>
                 <div className={styles.ProfileContainer}>
                     <div className={styles.nametagContainer}>
-                       <span className={styles.EmployeeId}>{user.name ? user.name : "Staff"}</span>
+                       <span className={styles.EmployeeId}>{user.name ? user.name : user.username ? user.username : "Staff"}</span>
                        <span className={styles.roles}>{role}</span>
                     </div>
                     <div className={styles.EmployeeIcon}>

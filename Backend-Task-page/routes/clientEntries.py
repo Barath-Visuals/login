@@ -7,22 +7,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from bson import ObjectId
 from datetime import datetime
 from typing import Optional
+from database import cliententry_collection, client_collection, design_collection
+from utils.auth import get_current_user
 
 router = APIRouter()
-
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=["http://localhost:5173"],  
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )
-
-client = MongoClient("mongodb://localhost:27017")
-db = client["task_app"]
-cliententry_collection = db["ClientEntries"]
-client_collection = db["client"]
-design_collection = db["design"]
 
 class ClientEntry(BaseModel):
     client_id: Optional [str] = None
@@ -128,6 +116,7 @@ def get_client_dashboard(
     cursor = cliententry_collection.find(query).sort("start_date", DESCENDING).skip(skip)
     if limit is not None:
         cursor = cursor.limit(limit)
+    
 
     result = []
 

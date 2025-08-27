@@ -133,6 +133,11 @@
         left: 50%;
         transform: translate(-50%, -50%);
         z-index: 1000;
+
+        .cal_Container{
+            width: auto;
+            height: auto;
+        }
         
         .closeBtn {
             background: none;
@@ -159,5 +164,11 @@
         align-items: center;
         justify-content: center;
         background-color: transparent !important;
+    }
+
+    .Calendar_container{
+        .cal_Container{
+            width: 314px !important;
+        }
     }
 }

@@ -17,11 +17,11 @@ export default function HRStaff({ user, onLogout }) {
                 <HRSideBar onLogout={onLogout}/>
                 <div className={styles.admin_content}>
                     <Routes>
-                        <Route path="/hrhome" element={<StaffAssigns />} />
-                        <Route path="/clientview" element={<HRClientView />} />
-                        <Route path='/signupstaff' element={<SignupStaff/>}/>
-                        <Route path='/staffmembers' element={<StaffUsers/>}/>
-                        <Route path="*" element={<Navigate to="hrhome" replace />} />
+                        <Route path="/Home" element={<StaffAssigns />} />
+                        <Route path="/clientView" element={<HRClientView />} />
+                        <Route path='/createStaff' element={<SignupStaff/>}/>
+                        <Route path='/viewStaffDetails' element={<StaffUsers/>}/>
+                        <Route path="*" element={<Navigate to="Home" replace />} />
                     </Routes>
                 </div>
             </div>

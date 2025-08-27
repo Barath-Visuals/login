@@ -19,7 +19,7 @@ export default function AppRoutes() {
     const checkUserProfile = async () => {
       const storedToken = localStorage.getItem("token");
 
-      console.log("token : ", storedToken)
+      // console.log("token : ", storedToken)
       if (!storedToken) {
         setUser(null);
         setProfileComplete(false);
@@ -32,7 +32,7 @@ export default function AppRoutes() {
             Authorization: `Bearer ${storedToken}`, // ✅ Must include Bearer!
           },
         });
-        console.log("User profile data:", res.data);
+        // console.log("User profile data:", res.data);
 
         setUser(res.data.username)
         setProfileComplete(Boolean(!!res.data.profileComplete));
@@ -104,20 +104,10 @@ export default function AppRoutes() {
     navigate("/login");
   };
 
-  const token = localStorage.getItem("token")
-  const role = localStorage.getItem("role")
-  useEffect(() => {
-    console.log(token, role)
-  },[])
-
-  useEffect(() => {
-    console.log("user:", user);
-    console.log("role:", role);
-    console.log("profileComplete:", profileComplete);
-  }, [user, role, profileComplete]);
+  const token = localStorage.getItem("token");
+  const role = localStorage.getItem("role");
 
   return (
-
     <Routes>
       <Route
         path="/"
@@ -146,13 +136,23 @@ export default function AppRoutes() {
       <Route
         path="/profile-update"
         element={
-          user //if user is exist
-            ? role === "admin" // if user is admin
-              ? <Navigate to="/admin" replace /> 
-            : profileComplete // else if profile is complete
-              ? <Navigate to="/user" replace /> 
-            : <ProfileUpdate onProfileComplete={handleProfileComplete} /> 
-          : <Navigate to="/login" replace />
+          user ? (
+            role === "admin" ? (
+              <Navigate to="/admin" replace />
+            ) : profileComplete ? (
+              role === "HR" ? (
+                <Navigate to="/hr" replace />
+              ) : role === "Manager" ? (
+                <Navigate to="/manager"/>
+              ) : (
+                <Navigate to="/user" replace />
+              ) 
+            ) : (
+              <ProfileUpdate onProfileComplete={handleProfileComplete} />
+            ) 
+          ) : (
+            <Navigate to="/login" replace />
+          ) 
         }
       />
 
@@ -182,6 +182,17 @@ export default function AppRoutes() {
       <Route
         path="/hr/*"
         element={ user && role === "HR"
+          ? ( profileComplete 
+            ? <HRStaff user={user} onLogout={handleLogout}/>
+            : <Navigate to="/profile-update" replace />
+        ):(
+          <Navigate to="/login" replace />
+        )}
+      />
+
+      <Route
+        path="/manager/*"
+        element={ user && role === "Manager"
           ? ( profileComplete 
             ? <HRStaff user={user} onLogout={handleLogout}/>
             : <Navigate to="/profile-update" replace />

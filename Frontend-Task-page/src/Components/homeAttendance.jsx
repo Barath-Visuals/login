@@ -12,7 +12,6 @@ export default function HomeAttendance() {
     const [token, setToken] = useState(localStorage.getItem('token'));
     //console.log("Username:", username);
 
-
     const formStatus = (status) =>{
        if(!status) return "";
        return status
@@ -23,14 +22,14 @@ export default function HomeAttendance() {
     const formatIst = (isoString) => {
     // Force parse to correct timestamp
         const timestamp = Date.parse(isoString);
-        const date = new Date(timestamp);
+        const date = new Date();
 
         const formatDate = new Intl.DateTimeFormat('en-IN', {
             day: "2-digit",
-            month: "2-digit",
+            month: "short",
             year: "numeric",
             timeZone: "Asia/Kolkata",
-        }).format(date);
+        }).format(date).toUpperCase();
 
         const formatTime = new Intl.DateTimeFormat("en-GB", {
             hour: "2-digit",
@@ -39,11 +38,6 @@ export default function HomeAttendance() {
             hour12: false,
             timeZone: "Asia/Kolkata",
         }).format(date);
-
-        console.log(timestamp);
-        console.log(date);
-        console.log(formatTime);
-        // console.log("✅ Format time (IST):", formatTime);
 
         return { formatTime, formatDate };
     };
