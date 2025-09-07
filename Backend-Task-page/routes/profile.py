@@ -77,13 +77,13 @@ def get_profile(current_user: dict = Depends(get_current_user)):
         "age": user.get("age"),
         "phone": user.get("phone"),
         "address": user.get("address"),
-        "aadhaar": user.get("aadhar") if role in ["admin", "hr"] else None
+        "aadhaar": user.get("aadhaar") if role in ["admin", "hr"] else None
     }
 
 
 @router.post("/admin/profile/update")
 def admin_update_user_profile(details : AdminUserDetailUpdate, current_user: dict = Depends(get_current_user)):
-    if current_user["role"] != "admin":
+    if current_user["role"] != "admin" and current_user["role"] != "HR":
         raise HTTPException(status_code=403, detail="Only admin can update user profile")
     
     target_user = profile_collection.find_one({"username" : details.username})

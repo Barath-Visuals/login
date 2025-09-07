@@ -7,9 +7,10 @@ import UserSideBar from "../Components/AdminSidebar.jsx";
 import DashBoard from "../Components/HomeComponent.jsx"
 import AttendanceLog from "../Components/Attendance.jsx"
 import ClientEntry from "../Components/ClientEntry.jsx"
+import { getUserRole } from '../utils/auth.jsx';
 
 export default function UserPage({ onLogout }) {
-    const role = localStorage.getItem("role")
+    const role = getUserRole()
     return(
         <div className={styles.user_layout}>
             <UserHeader/>

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import styles from "../StyleSCSS/Client.module.scss"
 import ClientForm from "./ClentEntryForm.jsx"
 import ClientEntryData from "./clientEntryData.jsx"
+import { getUserRole } from "../utils/auth.jsx";
 //import axios from 'axios';
 
 export default function ClientEntry({}) {
@@ -27,7 +28,7 @@ export default function ClientEntry({}) {
         handleClosePopUp();
     }
 
-    const role = localStorage.getItem('role');
+    const role = getUserRole()
 
 
     return(
@@ -60,7 +61,7 @@ export default function ClientEntry({}) {
                         <button className={styles.addEntry} onClick={handleShowPopUp}>
                             <span className={styles.icon}>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 26 26" fill="none">
-                                    <path d="M11.1665 14.8333H0.166504V11.1667H11.1665V0.166656H14.8332V11.1667H25.8332V14.8333H14.8332V25.8333H11.1665V14.8333Z" fill="#9747FF"/>
+                                    <path d="M11.1665 14.8333H0.166504V11.1667H11.1665V0.166656H14.8332V11.1667H25.8332V14.8333H14.8332V25.8333H11.1665V14.8333Z" fill="#6c63ff"/>
                                 </svg>
                             </span>
                             <span className={styles.buttonTitle}>Add Entries</span>
@@ -69,7 +70,7 @@ export default function ClientEntry({}) {
                 ) : null }
             </div>
             <div className={styles.client}>
-                <ClientEntryData searchText={searchText} reload={reloadData} />
+                <ClientEntryData searchText={searchText} reload={reloadData}  />
             </div>
 
             {showPopUp && (

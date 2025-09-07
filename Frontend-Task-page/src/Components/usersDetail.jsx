@@ -2,8 +2,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import Calendar from './CalendarModal.jsx';
 import axios from 'axios';
+import clxs from "clsx";
 import { useFetcher } from 'react-router-dom';
 import styles from "../StyleSCSS/userdetail.module.scss"
+import { getUserRole } from '../utils/auth.jsx';
 
 export default function ShowUserDetails ({user}) {
     const [showCalendar, setShowCalendar] = useState(false);
@@ -11,7 +13,7 @@ export default function ShowUserDetails ({user}) {
     const [editedUser, setEditedUser] = useState(null);
     const [userDetail, setUserDetail] = useState(user);
     const [selectedUsername, setSelectedUsername] = useState(null);
-    const role = localStorage.getItem('role');
+    const role = getUserRole()
 
     useEffect(() => {
         if (user) {

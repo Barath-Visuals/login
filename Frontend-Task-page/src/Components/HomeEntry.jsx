@@ -12,7 +12,7 @@ export default function HomeEntry () {
 
             const response = await axios.get(`http://localhost:8000/clientDashboard`, {
                 params: {
-                    limit : 10
+                    limit : 16
                 }
             })
             setEntries(response.data);
@@ -29,31 +29,32 @@ export default function HomeEntry () {
 
     if (loading) return <p className="">Loading...</p>;
     return(
-        <div className={styles.container}>
-            <table className={styles.table}>
-                <thead>
-                    <tr>
-                        <th>S.No</th>
-                        <th>Client Name</th>
-                        <th>Design Type</th>
-                        <th>Folder Type</th>
-                        <th>Start Date</th>
-                        <th>End Date</th>
-                    </tr>
+        <div className={styles.homeEntry_container}>
+            <table className={styles.homeEntry_table}>
+                <thead className={styles.homeEntry_thead}>
+                <tr className={styles.homeEntry_tr}>
+                    <th className={styles.homeEntry_th}>S.No</th>
+                    <th className={styles.homeEntry_th}>Client Name</th>
+                    <th className={styles.homeEntry_th}>Design Type</th>
+                    <th className={styles.homeEntry_th}>Folder Type</th>
+                    <th className={styles.homeEntry_th}>Start Date</th>
+                    <th className={styles.homeEntry_th}>End Date</th>
+                </tr>
                 </thead>
-                <tbody>
-                    {entries.map((entry, index) => (
-                        <tr key={index}>
-                            <td>{index + 1}</td>
-                            <td>{entry.client_name}</td>
-                            <td>{entry.design_type}</td>
-                            <td>{entry.folder_type}</td>
-                            <td>{entry.start_date}</td>
-                            <td>{entry.end_date}</td>
-                        </tr>
-                    ))}
+                <tbody className={styles.homeEntry_tbody}>
+                {entries.map((entry, index) => (
+                    <tr key={index} className={styles.homeEntry_tr}>
+                    <td className={styles.homeEntry_td}>{index + 1}</td>
+                    <td className={styles.homeEntry_td}>{entry.client_name}</td>
+                    <td className={styles.homeEntry_td}>{entry.design_type}</td>
+                    <td className={styles.homeEntry_td}>{entry.folder_type}</td>
+                    <td className={styles.homeEntry_td}>{entry.start_date}</td>
+                    <td className={styles.homeEntry_td}>{entry.end_date}</td>
+                    </tr>
+                ))}
                 </tbody>
             </table>
         </div>
+
     )
 }

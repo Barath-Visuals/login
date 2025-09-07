@@ -16,6 +16,7 @@ export default function signup () {
         try{
             const res = await axios.post('http://localhost:8000/signup', formData)
             setMessage(res.data.message)
+            sessionStorage.setItem("newUserCreated", "true");
 
         } catch (error) {
             if (error.message && error.respose && error.respose.data && error.respose.data.detail) {

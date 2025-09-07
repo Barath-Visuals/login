@@ -65,6 +65,10 @@
               color: #888;
               font-weight: 400;
             }
+
+            &:focus {
+              outline:none;
+            }
           }
           .password {
             position: relative;

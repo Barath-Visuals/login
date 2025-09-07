@@ -29,14 +29,25 @@ def get_user():
     for user in user_get:
         user["_id"] = str(user["_id"])
 
-        users_name = profile_collection.find_one({"username" : user["username"]})
-        print(user)
+        profile = profile_collection.find_one({"username" : user["username"]})
+
+        aadhaar_profile = None
+        if profile and "aadhaar" in profile:
+            aadhaar_profile = profile_collection.find_one({"aadhaar" : profile["aadhaar"]})
+            if aadhaar_profile and "_id" in aadhaar_profile:
+                aadhaar_profile["_id"] = str(aadhaar_profile["_id"])
+
+        print(aadhaar_profile)
         result.append({
             "username": user["username"],
             "role": user["role"],
             "isStatus": user.get("isStatus"),
-            "name" : users_name["name"] if users_name else None,
-            "created_at" : user["created_at"]
+            "name": profile["name"] if profile else None,
+            "created_at" : user["created_at"],
+            "aadhaar_profile" : {
+                "aadhaar": aadhaar_profile.get("aadhaar") if aadhaar_profile else None,
+                "name": aadhaar_profile.get("name") if aadhaar_profile else None
+            } if aadhaar_profile else None
         })
     return result
 
@@ -46,6 +57,9 @@ def delete_user(username: str):
     result = user_collection.delete_one({"username": username})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="User not found")
+    
+    login_logs_collection.delete_many({"username" : username})
+    profile_collection.delete_many({"username" : username})
     return {"message": "User deleted successfully","username": username}
 
 

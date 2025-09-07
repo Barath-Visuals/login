@@ -8,6 +8,7 @@ import UserRoute from "./Pages/UserRoute.jsx";
 import AdminRoute from "./Pages/AdminRoute.jsx";
 import HRStaff from "./Pages/HR_Route.jsx";
 import axios from "axios";
+import { getUserRole } from "./utils/auth.jsx";
 
 export default function AppRoutes() {
   const [user, setUser] = useState("guest");
@@ -67,7 +68,7 @@ export default function AppRoutes() {
       })
       setProfileComplete(Boolean(res.data.profileComplete))
 
-      const role = localStorage.getItem("role")
+      const role = getUserRole()
       if (role === "admin") {
         navigate("/admin")
       } else if (res.data.profileComplete) {
@@ -83,7 +84,7 @@ export default function AppRoutes() {
 
   const handleProfileComplete = () => {
     setProfileComplete(true);
-    const role = localStorage.getItem("role");
+    const role = getUserRole()
 
     if(role === "admin") { 
       navigate("/admin");
@@ -105,7 +106,7 @@ export default function AppRoutes() {
   };
 
   const token = localStorage.getItem("token");
-  const role = localStorage.getItem("role");
+  const role = getUserRole()
 
   return (
     <Routes>

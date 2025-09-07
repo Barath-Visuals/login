@@ -5,13 +5,14 @@ from jose import jwt
 from datetime import datetime, timedelta, timezone, time
 from zoneinfo import ZoneInfo
 from typing import Optional
+from datetime import datetime
 from database import user_collection, login_logs_collection, settings_collection, profile_collection
 from utils.auth import SECRET_KEY, ALGORITHM
 from utils.auth import get_current_user
 
 router = APIRouter()
 
-ACCESS_TOKEN_EXPIRE_MINUTES = 60
+ACCESS_TOKEN_EXPIRE_MINUTES = 240
 
 class User(BaseModel):
     username: str
@@ -76,64 +77,9 @@ def login(user: User):
         raise HTTPException(status_code=401, detail="invalid username or password")
     
     check_admin = found_user["role"] == "admin"
-    check_HR = found_user["role"] == "HR"
-    Check_Manager = found_user["role"] == "Manager"
-
     if not check_admin:
         if not found_user ["isStatus"] == "Active":
             raise HTTPException(status_code=401, detail="user is inactive")
-
-        now_Kolkata = datetime.now(ZoneInfo("Asia/Kolkata"))
-        current_time = now_Kolkata.time()
-        morning_time = time(23, 59)
-        afternoon_start = time(13, 00)
-        afternoon_end = time(13, 30)
-
-        if current_time <= morning_time:
-            login_type = "morning"
-            arrival_status = "on_time"
-        elif afternoon_start <= current_time <= afternoon_end:
-            login_type = "afternoon"
-            arrival_status = "late"
-        else:
-            print("hello")
-        
-        start_of_date = datetime(now_Kolkata.year, now_Kolkata.month, now_Kolkata.day, tzinfo=ZoneInfo("Asia/Kolkata"))
-        end_of_date = start_of_date + timedelta(days=1)
-        start_of_utc = start_of_date.astimezone(timezone.utc)
-        end_of_utc = end_of_date.astimezone(timezone.utc)
-        now_utc = datetime.now(timezone.utc)
-
-        existing_logs = login_logs_collection.find_one({
-            "username": user.username,
-            "login_time": {"$gte": start_of_utc, "$lt": end_of_utc }
-        })
-        if not check_HR and not Check_Manager:
-            if existing_logs:
-                raise HTTPException(status_code=403, detail="You have already logged in today")
-        
-        login_logs_collection.insert_one({
-            "username": user.username,
-            "login_time": now_utc,
-            "login_type": login_type,
-            "arrival_status": arrival_status,
-            "logout_time": None
-        })
-
-        on_time_count = login_logs_collection.count_documents({
-            "username": user.username,
-            "arrival_status": "on_time"
-        })
-        late_count = login_logs_collection.count_documents({
-            "username": user.username,
-            "arrival_status": "late"
-        })
-    else:
-        now_utc = datetime.now(timezone.utc)
-        login_type = None
-        arrival_status = None
-        on_time_count = None
-        late_count = None
     
     access_token = create_access_token(
         data={
@@ -144,26 +90,19 @@ def login(user: User):
     )
     
     profile_exists = bool(found_user.get("name"))
-    login_time_ist = now_utc.astimezone(ZoneInfo("Asia/Kolkata")).isoformat()
     
     return {
         "message": "logged in successfully",
         "access_token": access_token,
         "user": help_user(found_user),
         "token_type": "bearer",
-        "profile_exists": profile_exists,
-        "login_time": login_time_ist,
-        "arrival_status": arrival_status,
-        "on_time_count": on_time_count,
-        "late_count": late_count,
-        "logout_time": None
+        "profile_exists": profile_exists
     }
 
 
 #logout
 @router.post("/logout")
 def logout(current_user: dict = Depends(get_current_user)):
-    from datetime import datetime
     logout_time = datetime.utcnow()
     result = login_logs_collection.update_one(
         {"username": current_user["username"], "logout_time": None},

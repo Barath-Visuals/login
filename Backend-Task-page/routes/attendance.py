@@ -18,16 +18,25 @@ def get_attendance_logs(username: str, limit: Optional[int] = 10, current_user: 
     logs = []
     for log in query:
         login_time = log.get("login_time")
-        if isinstance(login_time, str):
-            try:
-                login_time = datetime.fromisoformat(login_time)
-            except ValueError:
-                login_time = None
+        logout_time = log.get("logout_time")
+        def convert_to_ist(dt):
+            if not dt:
+                return None
+            if isinstance(dt, str):
+                try:
+                    dt = datetime.fromisoformat(dt)
+                except ValueError:
+                    return None
+            # assume UTC if tz-naive
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=ZoneInfo("UTC"))
+            return dt.astimezone(ZoneInfo("Asia/Kolkata")).isoformat()
+
         logs.append({
-            "login_time": login_time.astimezone(ZoneInfo("Asia/Kolkata")).isoformat(),
+            "login_time": convert_to_ist(login_time),
+            "logout_time": convert_to_ist(logout_time),
             "login_type": log.get("login_type", ""),
             "arrival_status": log.get("arrival_status", ""),
-            "logout_time": log.get("logout_time")
         })
 
     logs = logs[::-1]  
