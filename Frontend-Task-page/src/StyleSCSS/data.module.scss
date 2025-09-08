@@ -5,15 +5,18 @@
   width: 100%;
   overflow-x: auto;
   margin: 0 auto;
-  color: black;
+  color: #FAF9F6;
 
+  /* Table */
   .entryTable__table {
     border-collapse: collapse;
     width: 100%;
+    min-width: 450px; /* keeps layout readable */
   }
 
-  .loader_wrapper{
-    position: fixed; /* take up full screen */
+  /* Loader */
+  .loader_wrapper {
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
@@ -21,9 +24,12 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    background: rgba(15, 15, 15, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 99;
   }
 
-  .loader{
+  .loader {
     position: relative;
     width: 20px;
     height: 20px;
@@ -44,7 +50,7 @@
     width: 6px;
     height: 18px;
     border-radius: 20px;
-    background: white; /* White so it shows on dark background */
+    background: white;
   }
 
   .loader div:nth-child(1) { transform: rotate(0deg); animation-delay: -1.1s; }
@@ -57,46 +63,81 @@
   .loader div:nth-child(8) { transform: rotate(315deg); animation-delay: -0.4s; }
 
   @keyframes fade {
-    0%{opacity: 1;}
-    100%{opacity: 0.2;}
+    0% { opacity: 1; }
+    100% { opacity: 0.2; }
   }
 
-  .entryTable__th,
-  .entryTable__td {
-    padding: 12px 16px;
-    text-align: center;
-  }
-
-  .entryTable__th{
-    background-color: #121212;
-  }
-
-  .entryTable__td{
-    background-color: #1F1F1F;
-    border-bottom: 1px solid black;
-    color: #FAF9F6;
-  }
-
+  /* Header row */
   .entryTable__theadRow {
-    background-color: #1F1F1F;
+    background-color: #121212;
     font-weight: bold;
   }
+
+  .entryTable__th {
+    padding: 12px 16px;
+    text-align: center;
+    color: #BDBDBD;
+    font-size: 0.85rem;
+    position: sticky;
+    top: 0;
+    background-color: #121212;
+    z-index: 5;
+  }
+
+  /* Cells */
+  .entryTable__td {
+    padding: 12px 16px;
+    background-color: #1F1F1F;
+    border-bottom: 1px solid #2A2A2A;
+    font-size: 0.9rem;
+    color: #FAF9F6;
+
+    /* Left align staff name */
+    &.staffCol {
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Center align default */
+    &:not(.staffCol) {
+      text-align: center;
+    }
+  }
+
+ 
 }
+
 
 @media (max-width: 500px) {
   .entryTable__container {
-    .entryTable__th {
-      padding: 8px 5px;
+    .entryTable__th{
       font-size: 10px;
+      padding: 8px 6px !important;
     }
 
-    .loader{
-      transform: scale(0.3) !important;
+    .entryTable__row {
+      margin-bottom: 15px;
+      border: 1px solid #2c2c2c;
+      border-radius: 10px;
+      padding: 10px;
+      background: #1A1A1A;
     }
 
     .entryTable__td {
+      padding: 8px 6px !important;
       font-size: 10px;
-      padding: 8px 5px;
+
+      &:before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #BDBDBD;
+      }
+    }
+
+    .loader {
+      transform: scale(0.3) !important;
     }
   }
 }

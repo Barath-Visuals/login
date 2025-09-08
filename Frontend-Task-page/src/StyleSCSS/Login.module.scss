@@ -11,29 +11,7 @@
     align-items: center;
     justify-content: center;
   
-    .gradientContainer {
-      position: relative;
-      width: 100%;
-      height: 100vh;
-      align-items: center;
-      justify-content: center;
-      display: flex;
-      flex-direction: column;
-  
-      .gradient1 {
-        align-items: center;
-        justify-content: center;
-        display: flex;
-        flex-direction: column;
-      }
-    }
-  
     .login {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      padding: 1rem;
       width: 100%; /* Adjusted for full width on mobile */
       display: flex;
       align-items: center;
@@ -48,8 +26,7 @@
         padding: 30px;
         width: 100%;
         max-width: 420px;
-        background-color: #ffffff;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        background-color: #121212;
         text-align: center;
 
         .head {
@@ -59,7 +36,7 @@
             font-size: 36px;
             font-weight: bold;
             margin: 0;
-            color: #000;
+            color: #FAF9F6;
           }
 
           p {
@@ -79,15 +56,18 @@
           .input {
             width: 100%;
             padding: 16px;
-            border: 1px solid #ddd;
             border-radius: 8px;
             font-size: 18px;
-            background-color: transparent;
-            color: #000;
+            background-color: #000000;
+            color: #FAF9F6;
 
             &::placeholder {
               color: #888;
               font-weight: 400;
+            }
+
+            &:focus {
+              outline:none;
             }
           }
           .password {
@@ -97,11 +77,10 @@
             input {
               width: 100%;
               padding: 16px;
-              border: 1px solid #ddd;
               border-radius: 8px;
               font-size: 18px;
-              background-color: transparent;
-              color: #000;
+              background-color: #000000;
+              color: #FAF9F6;
 
               &::placeholder {
                 color: #888;
@@ -175,13 +154,13 @@
 /* 📱 Small screens (phones) */
 @media (max-width: 480px) {
   main .login {
-    padding: 16px;
+    padding: 20px;
     width: 100%;
   }
 
   main .login .loginContainer {
-    border-radius: 12px;
-    padding: 20px 16px;
+    border-radius: 30px;
+    padding: 20px;
     background-color: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(5px);
     width: 100%;

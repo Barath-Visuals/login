@@ -1,6 +1,8 @@
 import React from "react";
 import { useEffect, useState } from 'react';
 import styles from "../StyleSCSS/data.module.scss"
+import clsx from "clsx";
+import useDebounce from "../hooks/debounceDearch";
 import axios from "axios";
 
 export default function ClientEntryData ({ searchText, reload}) {
@@ -8,8 +10,18 @@ export default function ClientEntryData ({ searchText, reload}) {
     const [username, setUsername] = useState(localStorage.getItem('username'));
     const [token, setToken] = useState(localStorage.getItem('token'));
     const [loading, setLoading] = useState(true);
+    const debounceSearch = useDebounce(searchText, 2000);
 
-    const fetchClientData = async () =>{
+    useEffect(() => {
+        if (!token) return;
+
+        const controller = new AbortController();
+        fetchClientData(debounceSearch, controller.signal);
+        return() => controller.abort()
+
+    },[token, reload, debounceSearch]);
+
+    const fetchClientData = async (debouncedValue, signal) =>{
         setLoading(true);
         const StartTime = Date.now()
         try {
@@ -19,10 +31,11 @@ export default function ClientEntryData ({ searchText, reload}) {
                 params: {
                     //client_name: clientNameSearchText || undefined,
                     //folder_type: folderTypeSearchText || undefined,
-                    search: searchText || undefined,
+                    search: debouncedValue || undefined,
                     skip: 0,
                     limit: undefined
-                }
+                },
+                signal,
             });
 
             const elasped = Date.now() - StartTime;
@@ -35,10 +48,19 @@ export default function ClientEntryData ({ searchText, reload}) {
             setLoading(false);
         }
     }
-    useEffect(() => {
-        fetchClientData();
+    
 
-    },[token, reload, searchText]);
+    const formatIST = (isoString) => {
+        const date = new Date(isoString); // use the passed value
+        return new Intl.DateTimeFormat("en-IN", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+            timeZone: "Asia/Kolkata"
+        }).format(date);
+    };
+
+    
     return(
         <div className={styles.entryTable__container}>
             <table className={styles.entryTable__table}>
@@ -72,8 +94,8 @@ export default function ClientEntryData ({ searchText, reload}) {
                                     <td className={styles.entryTable__td}>{entry.client_name}</td>
                                     <td className={styles.entryTable__td}>{entry.folder_type}</td>
                                     <td className={styles.entryTable__td}>{entry.design_type}</td>
-                                    <td className={styles.entryTable__td}>{entry.start_date}</td>
-                                    <td className={styles.entryTable__td}>{entry.end_date}</td>
+                                    <td className={clsx(styles.entryTable__td, styles.start_date)}>{formatIST(entry.start_date)}</td>
+                                    <td className={clsx(styles.entryTable__td, styles.end_date)}>{formatIST(entry.end_date)}</td>
                                 </tr>
                             ))
                         )

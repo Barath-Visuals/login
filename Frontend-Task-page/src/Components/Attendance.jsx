@@ -2,6 +2,7 @@ import React from 'react';
 import { useEffect, useState } from 'react';
 import styles from "../StyleSCSS/Attendance.module.scss"
 import axios from 'axios';
+import clsx from "clsx";
 
 export default function Attendance() {
     const [logs, setLogs] = useState([]);
@@ -22,15 +23,18 @@ export default function Attendance() {
     }
 
     const formatIst = (isoString) => {
-    // Force parse to correct timestamp
-        const timestamp = Date.parse(isoString);
-        const date = new Date(timestamp);
+        if (!isoString) return { formatTime: "-", formatDate: "-" };
 
-        const formatDate = new Intl.DateTimeFormat('en-IN', {
+        const date = new Date(isoString);
+
+        if (isNaN(date.getTime())) {
+            return { formatTime: "-", formatDate: "-" };
+        }
+
+        const formatDate = new Intl.DateTimeFormat("en-IN", {
             day: "2-digit",
-            month: "2-digit",
+            month: "short",
             year: "numeric",
-            timeZone: "Asia/Kolkata",
         }).format(date);
 
         const formatTime = new Intl.DateTimeFormat("en-GB", {
@@ -38,17 +42,11 @@ export default function Attendance() {
             minute: "2-digit",
             second: "2-digit",
             hour12: false,
-            timeZone: "Asia/Kolkata",
         }).format(date);
 
-        console.log(timestamp);
-        console.log(date);
-        console.log(formatTime);
-        // console.log("✅ Format time (IST):", formatTime);
-
+        console.log("✅ Displaying IST:", formatDate, formatTime);
         return { formatTime, formatDate };
     };
-
 
     useEffect(() =>{
         const fetchLogs = async () =>{
@@ -58,10 +56,10 @@ export default function Attendance() {
                     }
                 });
                 //console.log("welcome",response.data.name)
-                setLogs(response.data.logs);
-                setName(response.data.name)
+                setLogs(response.data.logs || []);
+                setName(response.data.name || "")
             } catch (error) {
-                setError(error.response.data?.detail || "error fetching logs");
+                setError(error.response?.data?.detail || "Error fetching logs");
             } finally{
                 setLoading(false);
             }
@@ -82,49 +80,81 @@ export default function Attendance() {
  
     return(
         <>
-            <div className={styles.nameofuser}><span>Attendance Logs for {name}</span></div>
-            <div className={styles.Containers}>
-                <table className={styles.table}>
-                    <thead>
-                        <tr>
-                            <th>S.No</th>
-                            <th>Date</th>
-                            <th>Time</th>
-                            <th>Status</th>
-                            <th>Session</th>
-                        </tr>
+            <div className={styles.homeAttendance_name}>
+                <span className={styles.homeAttendance_title}>Attendance Logs for {name}</span>
+            </div>
+
+            <div className={styles.homeAttendance_container}>
+                <table className={styles.homeAttendance_table}>
+                    <thead className={styles.homeAttendance_thead}>
+                    <tr className={styles.homeAttendance_tr}>
+                        <th className={styles.homeAttendance_th}>S.No</th>
+                        <th className={styles.homeAttendance_th}>Date</th>
+                        <th className={styles.homeAttendance_th}>Sign In</th>
+                        <th className={styles.homeAttendance_th}>Sign Out</th>
+                        <th className={styles.homeAttendance_th}>Status</th>
+                        <th className={styles.homeAttendance_th}>Session</th>
+                    </tr>
                     </thead>
-                    <tbody>
-                        {logs
-                        // this line changes the table element to descending order
-                            // .sort((a,b) => new Date(b.login_time) - new Date(a.login_time))
-                            .map((log, index) => {
-                                const { formatDate, formatTime } = formatIst(log.login_time);
-                                return(
-                                    <tr key={index}>
-                                        <td>{index + 1}</td>
-                                        <td>{formatDate}</td>
-                                        <td>{formatTime}</td>
-                                        <td
-                                            className={log.arrival_status === "on_time" ? styles.onTime : log.arrival_status === "late" ? styles.late : log.arrival_status === "leave" ? styles.leave : ""}
-                                        >
-                                            <span className={styles.statusText}>{formStatus(log.arrival_status)}</span>
-                                            <span className={styles.statusDot}></span>
-                                        </td>
-                                        <td className={styles.Session}>
-                                            <span className={styles.fullText}>
-                                                {log.login_type === "morning" ? "Morning" : log.login_type === "afternoon" ? "Afternoon" : "Leave"}
-                                            </span>
-                                            <span className={styles.shortText}>
-                                                {log.login_type === "morning" ? "FN" : log.login_type === "afternoon" ? "AN" : "-L-"}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                )
-                            })}
+                    <tbody className={styles.homeAttendance_tbody}>
+                    {(Array.isArray(logs) ? logs : []).map((log, index) => {
+                        const { formatDate, formatTime: loginTime } = log.login_time
+                        ? formatIst(log.login_time)
+                        : { formatDate: "-", formatTime: "-" };
+
+                        const logoutTime = log.logout_time
+                        ? formatIst(log.logout_time).formatTime
+                        : "-";
+
+                        return (
+                        <tr key={index} className={styles.homeAttendance_tr}>
+                            <td className={styles.homeAttendance_td}>{index + 1}</td>
+                            <td className={styles.homeAttendance_td}><span className={styles.homeAttendance_dates}>{formatDate}</span></td>
+                            <td className={styles.homeAttendance_td}><span className={styles.homeAttendance_dates}>{loginTime}</span></td>
+                            <td className={styles.homeAttendance_td}><span className={styles.homeAttendance_dates}>{logoutTime}</span></td>
+
+                            <td
+                            className={`${styles.homeAttendance_td} ${
+                                log.arrival_status === "on_time"
+                                ? styles.homeAttendance_onTime
+                                : log.arrival_status === "late"
+                                ? styles.homeAttendance_late
+                                : log.arrival_status === "leave"
+                                ? styles.homeAttendance_leave
+                                : ""
+                            }`}
+                            >
+                            <span className={styles.homeAttendance_statusText}>
+                                {formStatus(log.arrival_status)}
+                            </span>
+                            <span className={styles.homeAttendance_statusDot}></span>
+                            </td>
+
+                            <td
+                            className={`${styles.homeAttendance_td} ${styles.homeAttendance_session}`}
+                            >
+                            <span className={styles.homeAttendance_fullText}>
+                                {log.login_type === "morning"
+                                ? "Morning"
+                                : log.login_type === "afternoon"
+                                ? "Afternoon"
+                                : "Leave"}
+                            </span>
+                            <span className={styles.homeAttendance_shortText}>
+                                {log.login_type === "morning"
+                                ? "FN"
+                                : log.login_type === "afternoon"
+                                ? "AN"
+                                : "-L-"}
+                            </span>
+                            </td>
+                        </tr>
+                        );
+                    })}
                     </tbody>
                 </table>
             </div>
+
         </>
     )
 }

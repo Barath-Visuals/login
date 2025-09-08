@@ -8,8 +8,14 @@ import HRClientView from "../Components/ClientEntry.jsx"
 import SignupStaff from "../Components/Signup.jsx";
 import StaffAssigns from "../Components/Staff_Admin.jsx"
 import styles from "../StyleSCSS/admin.module.scss"
+import DashBoard from "../Components/HomeComponent.jsx"
+import { getUserRole } from '../utils/auth.jsx';
+import AttendanceLog from "../Components/Attendance.jsx"
+
 
 export default function HRStaff({ user, onLogout }) {
+
+    const role = getUserRole()
     return(
         <div className={styles.admin_layout}>
             <HRHeader/>
@@ -17,11 +23,13 @@ export default function HRStaff({ user, onLogout }) {
                 <HRSideBar onLogout={onLogout}/>
                 <div className={styles.admin_content}>
                     <Routes>
-                        <Route path="/hrhome" element={<StaffAssigns />} />
-                        <Route path="/clientview" element={<HRClientView />} />
-                        <Route path='/signupstaff' element={<SignupStaff/>}/>
-                        <Route path='/staffmembers' element={<StaffUsers/>}/>
-                        <Route path="*" element={<Navigate to="hrhome" replace />} />
+                        <Route path='/Home' element={<DashBoard role={role}/>}/>
+                        <Route path="/staffManagement" element={<StaffAssigns />} />
+                        <Route path="/clientView" element={<HRClientView />} />
+                        <Route path='/createStaff' element={<SignupStaff/>}/>
+                        <Route path='/attendance' element={<AttendanceLog/>}/>
+                        <Route path='/viewStaffDetails' element={<StaffUsers/>}/>
+                        <Route path="*" element={<Navigate to="Home" replace />} />
                     </Routes>
                 </div>
             </div>

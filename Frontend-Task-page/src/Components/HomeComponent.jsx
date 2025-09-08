@@ -6,7 +6,7 @@ import HomeEntry from "./HomeEntry.jsx";
 import styles from "../StyleSCSS/joint.module.scss"
 
 export default function HomeComponent ({role}) {
-    console.log("ROLE", role)
+    // console.log("ROLE", role)
     return(
         <div className={styles.contentArea}>
             <div className={styles.content}>

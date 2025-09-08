@@ -2,9 +2,9 @@
 
 .calendar_modal {
   padding: 2rem;
-  background-color: #1F1F1F;
+  //background-color: #1F1F1F;
   border-radius: 12px;
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+  //box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
   width: 100%;
   max-width: 500px;
   margin: auto;
@@ -19,7 +19,7 @@
   h2 {
     margin: 0;
     font-size: 1.5rem;
-    color: white;
+    color: rgb(255, 255, 255);
     font-weight: 500;
   }
 
@@ -65,10 +65,11 @@
   background-color: #fff;
   color: #222;
   border-radius: 8px;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  //box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
   font-family: Arial, sans-serif;
   line-height: 1.125em;
   padding: 1rem;
+  border: none !important;
 }
 
 :global(.react-calendar__tile--active) {
@@ -83,4 +84,10 @@
   border-radius: 6px;
   color: #6f48eb;
   font-weight: bold;
+}
+
+@media (max-width : 500px) {
+  .calendar_modal{
+    padding: 1rem;
+  }
 }

@@ -12,7 +12,6 @@ export default function HomeAttendance() {
     const [token, setToken] = useState(localStorage.getItem('token'));
     //console.log("Username:", username);
 
-
     const formStatus = (status) =>{
        if(!status) return "";
        return status
@@ -21,16 +20,20 @@ export default function HomeAttendance() {
     }
 
     const formatIst = (isoString) => {
-    // Force parse to correct timestamp
-        const timestamp = Date.parse(isoString);
-        const date = new Date(timestamp);
+        if (!isoString) return { formatTime: "-", formatDate: "-" };
 
-        const formatDate = new Intl.DateTimeFormat('en-IN', {
+        const date = new Date(isoString); // ✅ use backend timestamp
+
+        if (isNaN(date.getTime())) {
+            return { formatTime: "-", formatDate: "-" };
+        }
+
+        const formatDate = new Intl.DateTimeFormat("en-IN", {
             day: "2-digit",
-            month: "2-digit",
+            month: "short",
             year: "numeric",
             timeZone: "Asia/Kolkata",
-        }).format(date);
+        }).format(date).toUpperCase();
 
         const formatTime = new Intl.DateTimeFormat("en-GB", {
             hour: "2-digit",
@@ -39,11 +42,6 @@ export default function HomeAttendance() {
             hour12: false,
             timeZone: "Asia/Kolkata",
         }).format(date);
-
-        console.log(timestamp);
-        console.log(date);
-        console.log(formatTime);
-        // console.log("✅ Format time (IST):", formatTime);
 
         return { formatTime, formatDate };
     };
@@ -76,45 +74,60 @@ export default function HomeAttendance() {
     if (error) return <div>Error {error}</div>
  
     return(
-        <div className={styles.Container}>
-            <table className={styles.table}>
-                <thead>
-                    <tr>
-                        <th>S.No</th>
-                        <th>Date</th>
-                        <th>Time</th>
-                        <th>Status</th>
-                        <th>Session</th>
-                    </tr>
+        <div className={styles.attendance_container}>
+            <table className={styles.attendance_table}>
+                <thead className={styles.attendance_thead}>
+                <tr className={styles.attendance_tr}>
+                    <th className={styles.attendance_th}>S.No</th>
+                    <th className={styles.attendance_th}>Date</th>
+                    <th className={styles.attendance_th}>Time</th>
+                    <th className={styles.attendance_th}>Status</th>
+                    <th className={styles.attendance_th}>Session</th>
+                </tr>
                 </thead>
-                <tbody>
-                    {logs
-                    // this line changes the table element to descending order
-                        // .sort((a,b) => new Date(b.login_time) - new Date(a.login_time))
-                        .map((log, index) => {
-                            const { formatDate, formatTime } = formatIst(log.login_time);
-                            return(
-                                <tr key={index}>
-                                    <td>{index + 1}</td>
-                                    <td>{formatDate}</td>
-                                    <td>{formatTime}</td>
-                                    <td
-                                        className={log.arrival_status === "on_time" ? styles.onTime : log.arrival_status === "late" ? styles.late : log.arrival_status === "leave" ? styles.leave : ""}
-                                    >
-                                        <span className={styles.statusText}>{formStatus(log.arrival_status)}</span>
-                                        <span className={styles.statusDot}></span>
-                                    </td>
-                                    <td className={styles.Session}>
-                                        <span className={styles.fullText}>
-                                            {log.login_type === "morning" ? "Morning" : log.login_type === "afternoon" ? "Afternoon" : "Leave"}
-                                        </span>
-                                        <span className={styles.shortText}>
-                                            {log.login_type === "morning" ? "FN" : log.login_type === "afternoon" ? "AN" : "-L-"}
-                                        </span>
-                                    </td>
-                                </tr>
-                            )
-                        })}
+                <tbody className={styles.attendance_tbody}>
+                {logs.map((log, index) => {
+                    const { formatDate, formatTime } = formatIst(log.login_time);
+                    return (
+                    <tr key={index} className={styles.attendance_tr}>
+                        <td className={styles.attendance_td}>{index + 1}</td>
+                        <td className={styles.attendance_td}>{formatDate}</td>
+                        <td className={styles.attendance_td}>{formatTime}</td>
+                        <td
+                        className={`${styles.attendance_td} ${
+                            log.arrival_status === "on_time"
+                            ? styles.attendance_onTime
+                            : log.arrival_status === "late"
+                            ? styles.attendance_late
+                            : log.arrival_status === "leave"
+                            ? styles.attendance_leave
+                            : ""
+                        }`}
+                        >
+                        <span className={styles.attendance_statusText}>
+                            {formStatus(log.arrival_status)}
+                        </span>
+                        <span className={styles.attendance_statusDot}></span>
+                        </td>
+                        <td className={`${styles.attendance_td} ${styles.attendance_session}`}>
+                        <span className={styles.attendance_fullText}>
+                            {log.login_type === "morning"
+                            ? "Morning"
+                            : log.login_type === "afternoon"
+                            ? "Afternoon"
+                            : "Leave"}
+                        </span>
+                        <span className={styles.attendance_shortText}>
+                            {log.login_type === "morning"
+                            ? "FN"
+                            : log.login_type === "afternoon"
+                            ? "AN"
+                            : "-L-"}
+                        </span>
+                        </td>
+                    </tr>
+                    );
+                })}
                 </tbody>
             </table>
         </div>
