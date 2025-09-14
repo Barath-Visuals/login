@@ -19,7 +19,12 @@ class ClientEntry(BaseModel):
     design_type: str
     folder_type: str
     start_date: str
-    end_date: str
+    end_date: Optional [str] = None
+
+class UpdateClientEntry(BaseModel):
+    start_date: Optional[str] = None
+    end_date: Optional[str] = None
+
 
 
 @router.post("/clientEntry")
@@ -68,21 +73,34 @@ def create_client_entry(client_entry: ClientEntry):
         design_id = client_entry_dictc["design_id"]
         design_type = client_entry_dictc["design_type"]
 
-    client_entry_dictc["start_date"] = datetime.strptime(client_entry_dictc["start_date"], "%Y-%m-%d")
-    client_entry_dictc["end_date"] = datetime.strptime(client_entry_dictc["end_date"], "%Y-%m-%d")
+    start_date = datetime.strptime(client_entry_dictc["start_date"], "%Y-%m-%d")
+    end_date = None
+    entry_id = str(uuid.uuid4())
 
     cliententry_collection.insert_one(
         {
+            "entry_id": entry_id,
             "client_id": client_id,
             "client_name": client_name,
             "design_id": design_id,
             "design_type": design_type,
             "folder_type": client_entry_dictc["folder_type"],
-            "start_date": client_entry_dictc["start_date"],
-            "end_date": client_entry_dictc["end_date"],
+            "start_date": start_date,
+            "end_date": end_date,
         }
     )
-    return {"message": "Client entry created successfully"}
+    return {
+        "message": "Client entry created successfully",
+        "entry_id": entry_id,
+        "client_id": client_id,
+        "client_name": client_entry_dictc["client_name"],
+        "design_id": design_id,
+        "design_type": client_entry_dictc["design_type"],
+        "folder_type": client_entry_dictc["folder_type"],
+        "start_date": start_date,
+        "end_date": end_date,
+    }
+
 
 @router.get("/clientDashboard")
 def get_client_dashboard(
@@ -90,6 +108,8 @@ def get_client_dashboard(
     design_type: Optional[str] = Query(None),
     folder_type: Optional[str] = Query(None),
     search: Optional[str] = Query(None),
+    start_date : Optional[str] = Query(None),
+    end_date : Optional[str] = Query(None),
     limit: Optional[int] = Query(None, ge=1),
     skip: int = Query(0, ge=0),
 ):
@@ -112,7 +132,27 @@ def get_client_dashboard(
     #     .sort("start_date", DESCENDING)\
     #     .skip(skip)\
     #     .limit(limit)
+
+    if start_date and end_date:
+        start_dt = datetime.strptime(start_date, "%Y-%m-%d")
+        end_dt = datetime.strptime(end_date, "%Y-%m-%d")
+
+        query["$and"] = [
+            {"start_date" : {"$gte" : start_dt}},
+            {"end_date" : {"$lte" : end_dt}}
+        ]
     
+    elif start_date and not end_date:
+        target_dt = datetime.strptime(start_date, "%Y-%m-%d")
+        query["$and"] = [
+            {"start_date": {"$lte": target_dt}},
+            {"end_date": {"$gte": target_dt}},
+        ]
+    
+    elif end_date and not start_date:
+        target_dt = datetime.strptime(end_date, "%Y-%m-%d")
+        query["end_date"] ={"$lte" : target_dt} 
+
     cursor = cliententry_collection.find(query).sort("start_date", DESCENDING).skip(skip)
     if limit is not None:
         cursor = cursor.limit(limit)
@@ -122,12 +162,35 @@ def get_client_dashboard(
 
     for entry in cursor:
         result.append({
+            "entry_id": entry["entry_id"],
             "client_name": entry["client_name"],
             "design_type": entry["design_type"],
             "folder_type": entry["folder_type"],
-            "start_date": entry["start_date"].strftime("%Y-%m-%d"),
-            "end_date": entry["end_date"].strftime("%Y-%m-%d"),
+            "start_date": entry["start_date"].strftime("%Y-%m-%d") if entry.get("start_date") else None,
+            "end_date": entry["end_date"].strftime("%Y-%m-%d") if entry.get("end_date") else None,
         })
 
 
     return result
+
+
+@router.put("/clientEntry/{entry_id}")
+def updateDates(entry_id: str, updated_entry : UpdateClientEntry):
+    entry = cliententry_collection.find_one({"entry_id" : entry_id})
+
+    if not entry:
+        raise HTTPException(status_code=404, detail="Client entry not found")
+    
+    updated_data = updated_entry.dict(exclude_unset = True)
+
+    if "start_date" in updated_data:
+        updated_data["start_date"] = datetime.strptime(updated_data["start_date"], "%Y-%m-%d")
+    if "end_date" in updated_data:
+        updated_data["end_date"] = datetime.strptime(updated_data["end_date"], "%Y-%m-%d")
+
+    cliententry_collection.update_one(
+        {"entry_id" : entry_id},
+        {"$set" : updated_data}
+    )
+
+    return{"message": "Client entry updated successfully"}

@@ -8,7 +8,7 @@ export default function SendReport() {
     const [message, setMessage] = useState("");
     const role = getUserRole()
 
-    const token = getUserRole()
+    const token = localStorage.getItem("token")
 
     const CheckSendReport = async () => {
         try{

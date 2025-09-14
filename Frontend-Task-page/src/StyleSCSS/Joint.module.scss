@@ -34,6 +34,7 @@
         display: flex;
         flex-direction: column;
         border-radius: 10px;
+        flex: 1;
     }
     
     .sty{
@@ -41,11 +42,14 @@
     }
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1700px){
   .contentSpace {
     flex-direction: column;
     height: auto !important;
   }
+
+}
+@media (max-width: 1200px) {
 
   .contentSpace .contents {
     width: 100%;

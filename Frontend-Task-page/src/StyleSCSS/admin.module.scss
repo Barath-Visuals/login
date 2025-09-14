@@ -284,6 +284,92 @@
   }
 }
 
+.confirmOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6); // darker backdrop
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  backdrop-filter: blur(4px); // subtle blur
+}
+
+.confirmBox {
+  background: #1e1e1e;
+  padding: .75rem;
+  border-radius: 14px;
+  text-align: center;
+  width: 320px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  animation: fadeIn 0.25s ease-out;
+  
+}
+
+.confirmTitle {
+  display: block;
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: #fff;
+  margin-bottom: 0.75rem;
+}
+
+.confirmBox p {
+  margin: 0.5rem 0 1.25rem;
+  font-size: 0.95rem;
+  color: #ddd;
+  line-height: 1.4;
+  white-space: wrap;
+}
+
+.confirmDivider {
+  border: none;
+  height: 1px;
+  background: #333;
+  margin: 0.75rem 0;
+}
+
+.confirmButtons {
+  display: flex;
+  justify-content: space-evenly;
+  gap: 1rem;
+}
+
+.confirmYes,
+.confirmNo {
+  padding: 0.5rem 1.2rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.confirmYes {
+  background: transparent;
+  color: #fff;
+}
+
+.confirmYes:hover {
+  background: #c92f0c;
+}
+
+.confirmNo {
+  background: transparent;
+  color: #eee;
+}
+
+.confirmNo:hover {
+  background: #444;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+
+
 /* Responsive */
 @media (max-width: 768px) {
   .staffTable-container {

@@ -24,8 +24,10 @@ def help_user(user) -> dict:
         "id": str(user["_id"]),
         "username": user["username"],
         "role": user.get("role", "staff"),
+        "isStatus": user.get("isStatus", "Active"),
         "signup_date": user.get("signup_date"),
-        "created_at": user.get("created_at")
+        "created_at": user.get("created_at"),
+        "inactive_date": user.get("inactive_date")
     }
 
 
@@ -53,7 +55,8 @@ def signup(user : User):
         "role": role,
         "isStatus": "Active",
         "signup_date": signup_date.isoformat(),
-        "created_at": datetime.now(ZoneInfo('Asia/Kolkata')).isoformat()
+        "created_at": datetime.now(ZoneInfo('Asia/Kolkata')).isoformat(),
+        "inactive_date" : None
     })
 
     if role == "admin":

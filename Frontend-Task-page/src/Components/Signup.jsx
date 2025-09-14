@@ -1,11 +1,14 @@
 import React from "react";
 import { useEffect, useState } from 'react';
 import axios from "axios";
-import styles from "../StyleSCSS/signup.module.scss"
+import styles from "../StyleSCSS/signup.module.scss";
+import AlertMessage from "./Alert_Msg";
 
-export default function signup () {
-    const [formData, setFormData] = useState({username: "", password : ""});
-    const [message, setMessage] = useState("")
+export default function Signup () {
+    const [formData, setFormData] = useState({ username: "", password: "" });
+    const [alertMessage, setAlertMessage] = useState("");
+    const [showAlert, setShowAlert] = useState(false);
+    const [statusCode, setStatusCode] = useState(200);
 
     const handleChanges = (e) => {
         setFormData({...formData, [e.target.name]: e.target.value})
@@ -15,15 +18,33 @@ export default function signup () {
         e.preventDefault();
         try{
             const res = await axios.post('http://localhost:8000/signup', formData)
-            setMessage(res.data.message)
-            sessionStorage.setItem("newUserCreated", "true");
 
-        } catch (error) {
-            if (error.message && error.respose && error.respose.data && error.respose.data.detail) {
-                setMessage("Error: " + error.response.data.detail)
-            } else {
-                setMessage("Signup failed")
+            if (res.status === 200 || res.data?.message) {
+                setShowAlert(false)
+                setTimeout(() => {
+                setAlertMessage(res.data.message || "Staff created successfully!");
+                setStatusCode(200);
+                setShowAlert(true);
+
+                //sessionStorage.setItem("newUserCreated", "true");
+                setFormData({ username: "", password: "" });
+            }, 50);
             }
+        } catch (error) {
+            setShowAlert(false);
+            setTimeout(() => {
+                const backendStatus = error.response?.status || 500; // get actual status
+                setAlertMessage(error.response?.data?.detail || "Signup failed");
+
+                // Map backend status to correct icon/message
+                if (backendStatus === 400 || backendStatus === 404) {
+                    setStatusCode(backendStatus); // show warningSVG
+                } else {
+                    setStatusCode(500); // fallback to error icon
+                }
+
+                setShowAlert(true);
+            }, 50);
         }
     }
 
@@ -38,6 +59,7 @@ export default function signup () {
                         placeholder="Username"
                         value={formData.username}
                         onChange={handleChanges}
+                        autoComplete="username"
                         required
                     />
                     <input
@@ -46,11 +68,19 @@ export default function signup () {
                         placeholder="Password"
                         value={formData.password}
                         onChange={handleChanges}
+                        autoComplete="current-password"
                         required
                     />
                     <button type="submit">Create Staff</button>
                 </form>
-                {message && <p className={styles.signupmessage}>{message}</p>}
+                {showAlert && (
+                <AlertMessage
+                    statusCode={statusCode}
+                    message={alertMessage}
+                    duration={3000}
+                    onClose={() => setShowAlert(false)}
+                />
+            )}
             </div>
         </div>
     )

@@ -5,7 +5,7 @@ from zoneinfo import ZoneInfo
 from pydantic import BaseModel
 from pymongo import DESCENDING
 
-from database import user_collection, profile_collection, login_logs_collection, cliententry_collection
+from database import user_collection, profile_collection, login_logs_collection, cliententry_collection, inactive_history
 from utils.auth import get_current_user
 
 router = APIRouter()
@@ -37,7 +37,6 @@ def get_user():
             if aadhaar_profile and "_id" in aadhaar_profile:
                 aadhaar_profile["_id"] = str(aadhaar_profile["_id"])
 
-        print(aadhaar_profile)
         result.append({
             "username": user["username"],
             "role": user["role"],
@@ -47,8 +46,10 @@ def get_user():
             "aadhaar_profile" : {
                 "aadhaar": aadhaar_profile.get("aadhaar") if aadhaar_profile else None,
                 "name": aadhaar_profile.get("name") if aadhaar_profile else None
-            } if aadhaar_profile else None
+            } if aadhaar_profile else None,
+            "inactive_date" : user.get("inactive_date")
         })
+
     return result
 
 
@@ -65,17 +66,43 @@ def delete_user(username: str):
 
 @router.post("/update-role")
 async def update_role(data: get_User):
+    user = user_collection.find_one({"username" : data.username})
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    update_fields = {
+        "role" : data.role,
+        "isStatus" : data.isStatus
+    }
+
+    if data.isStatus == "Inactive":
+        now = datetime.now(ZoneInfo("Asia/Kolkata")).isoformat()
+        update_fields["inactive_date"] = now
+
+        inactive_history.insert_one({
+            "username": data.username,
+            "status": "Inactive",
+            "timestamp": now
+        })
+    elif data.isStatus == "Active":
+        update_fields ["inactive_date"] = None
+
     result = user_collection.update_one(
         {"username": data.username},
-        {"$set": {"role": data.role, "isStatus": data.isStatus}}
+        {"$set": update_fields}
     )
+
     if result.modified_count == 0:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="User not updated")
+    
+    updated_user = user_collection.find_one({"username" : data.username})
     return {
-        "message": "Role updated successfully",
-        "username": data.username,
-        "role": data.role,
-        "isStatus": data.isStatus
+        "message": "Role/status updated successfully",
+        "username": updated_user["username"],
+        "role": updated_user["role"],
+        "isStatus": updated_user["isStatus"],
+        "inactive_date": updated_user.get("inactive_date")
     }
 
 

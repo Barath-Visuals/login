@@ -1,31 +1,12 @@
-import React from 'react';
-import { useEffect, useState } from 'react';
-import axios from 'axios';
 import styles from "../StyleSCSS/dashboard.module.scss";
 
 
-export default function Absent() {
-    const [absent, setAbsent] = useState([0]);
-
-    useEffect(() => {
-        const fetchAbsent = async () => {
-            try{
-                const token = localStorage.getItem('token');
-                const response = await axios.get('http://127.0.0.1:8000/attendance_summary', {
-                    headers: {Authorization: `Bearer ${token}`}
-                });
-                setAbsent(response.data.leave_days)
-            } catch (error) {
-                console.error('Error fetching attendance summary:', error)
-            };
-        }
-        fetchAbsent();
-    }, []);
+export default function Absent({absent}) {
     return(
         <div className={styles.Container}>
             <div className={styles.text}>
                 <span className={styles.span}>Absent</span>
-                <h1 className={styles.h1}>{absent || 0}</h1>
+                <h1 className={styles.h1}>{absent}</h1>
             </div>
             <div className={styles.icon}>
                 <div className={styles.icon_n}>

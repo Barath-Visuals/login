@@ -2,8 +2,14 @@ import React from "react";
 import { useEffect, useState } from 'react';
 import styles from "../StyleSCSS/Form.module.scss"
 import axios from 'axios';
+import AlertMessage from "./Alert_Msg";
 
 export default function ClientEntryForm ({ onEntryAdded }) {
+
+    const [showAlert, setShowAlert] = useState(false)
+    const [alertMessage, setAlertMessage] = useState("")
+    const [statusCode, setStatusCode] = useState(200);
+    
 
     const [formData, setFormdata] = useState({
         client_name: "",
@@ -26,7 +32,7 @@ export default function ClientEntryForm ({ onEntryAdded }) {
             //const token = localStorage.getItem("token")
             const response = await axios.post("http://127.0.0.1:8000/clientEntry", formData);
             console.log(response.data.message);
-            alert("client entry added successfully")
+
 
             setFormdata({
                 client_name: "",
@@ -36,10 +42,19 @@ export default function ClientEntryForm ({ onEntryAdded }) {
                 end_date: ''
             })
 
-            if (onEntryAdded) onEntryAdded() 
+            if (response.status === 200) {
+                if (onEntryAdded) onEntryAdded("Successfully Added", 200);
+            }
+
         } catch (error) {
             console.error("Error creating client entry:", error);
-            alert("Failed to create client entry.");
+
+            const backendStatus = error.response?.status || 500;
+            const backendMessage = error.response?.data?.message || "Entry Failed";
+
+            if (onEntryAdded) {
+                onEntryAdded(backendMessage, backendStatus);
+            }
         }
     }
 
@@ -57,6 +72,14 @@ export default function ClientEntryForm ({ onEntryAdded }) {
                 </div>
                 <button type="submit">Add</button>
             </div>
+            {/* {showAlert && (
+                <AlertMessage 
+                    message={alertMessage}
+                    statusCode={statusCode}
+                    duration={3000}
+                    onClose ={() => setShowAlert(false)}
+                />
+            )} */}
         </form>
     )
 }

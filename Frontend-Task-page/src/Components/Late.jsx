@@ -1,32 +1,12 @@
-import React from 'react';
-import { useEffect, useState } from 'react';
-import axios from 'axios';
 import styles from "../StyleSCSS/dashboard.module.scss";
 
 
-export default function LateArrival() {
-    const [late, setLate] = useState([0]);
-
-    useEffect(() => {
-        const fetchLate = async () => {
-            try{
-                const token = localStorage.getItem('token');
-                const response = await axios.get('http://127.0.0.1:8000/attendance_summary', {
-                    headers: {Authorization: `Bearer ${token}`}
-                })
-                setLate(response.data.late_count)
-
-            } catch (error) {
-                console.error('Error fetching total days:', error)
-            }
-        }
-        fetchLate();
-    }, []);
+export default function LateArrival({late}) {
     return(
         <div className={styles.Container}>
             <div className={styles.text}>
                 <span className={styles.span}>Late Arrival</span>
-                <h1 className={styles.h1}>{late || 0}</h1>
+                <h1 className={styles.h1}>{late}</h1>
             </div>
             <div className={styles.icon}>
                 <div className={styles.icon_n}>

@@ -79,7 +79,7 @@ def save_attendance_to_excel(df, year, month, output_dir = "reports"):
 
 def send_attendance_report(filepath, recipient_email):
     sender_email = "barathbm2003@gmail.com"
-    sender_password = "muxe qnlx tlem ljgq"
+    sender_password = "wrbp unen ajof djmg"
 
     msg = MIMEMultipart()
     msg["From"] = sender_email
@@ -103,6 +103,26 @@ def send_attendance_report(filepath, recipient_email):
 
     print(f"📧 Report sent to {recipient_email}")
 
+def delete_previous_month_log(year, month):
+
+    if month == 1:
+        prev_year, prev_month =year - 1, 12
+    else:
+        prev_year, prev_month = year, month - 1
+
+    start_of_month = datetime(prev_year, prev_month, 1, tzinfo=timezone.utc)
+
+    if prev_month == 12:
+        start_of_next_month = datetime(prev_year + 1,1,1, tzinfo=timezone.utc )
+    else :
+        start_of_next_month = datetime(prev_year, prev_month + 1, 1, tzinfo=timezone.utc)
+    
+    result = login_logs_collection.delete_many({
+        "login_time": {"$gte": start_of_month, "$lt": start_of_next_month}
+    })
+
+    print(f"🗑️ Deleted {result.deleted_count} logs for {prev_year}-{prev_month:02d}")
+
 @router.get("/send-report")
 def send_report(current_user: dict = Depends(get_current_user)):
 
@@ -116,6 +136,8 @@ def send_report(current_user: dict = Depends(get_current_user)):
     file_path = f"attendance_report_{year}_{month}.xlsx"
     df.to_excel(file_path)
 
-    send_attendance_report(file_path, "lgss.acrylics@gmail.com")
+    send_attendance_report(file_path, "barathbm2003@gmail.com")
+
+    delete_previous_month_log(year, month)
 
     return {"message": "Report generated and sent successfully!"}

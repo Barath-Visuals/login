@@ -7,8 +7,28 @@ from utils.auth import get_current_user
 
 router = APIRouter()
 
+def finalize_unclosed_signins():
+    now_ist = datetime.now(ZoneInfo("Asia/Kolkata"))
+    today_start = datetime(now_ist.year, now_ist.month, now_ist.day, tzinfo=ZoneInfo("Asia/Kolkata"))
+    yesterday_start = today_start - timedelta(days=1)
+    yesterday_end = today_start - timedelta(microseconds=1)
+
+    yesterday_start_utc = yesterday_start.astimezone(timezone.utc)
+    yesterday_end_utc = yesterday_end.astimezone(timezone.utc)
+
+    unclosed_logs = login_logs_collection.find({"login_time": {"$gte": yesterday_start_utc, "$lte": yesterday_end_utc},
+        "logout_time": None
+    })
+
+    for log in unclosed_logs:
+        login_logs_collection.update_one(
+            {"_id": log["_id"]},
+            {"$set": {"arrival_status": "absent"}}
+        )
+
 @router.post("/signin")
 def signin (current_user : dict = Depends(get_current_user)):
+    finalize_unclosed_signins()
     username = current_user["username"]
 
     #Checks existing signin
@@ -71,15 +91,30 @@ def signin (current_user : dict = Depends(get_current_user)):
 def signout(current_user : dict = Depends(get_current_user)):
     username = current_user["username"]
 
-    result = login_logs_collection.update_one({
-        "username" : username, "logout_time" : None
-    }, {
-        "$set" : {
-            "logout_time" : datetime.now(timezone.utc)
-        }
-    })
+    now_ist = datetime.now(ZoneInfo("Asia/Kolkata"))
+    cut_off = time(22, 00)
 
-    if result.modified_count == 0:
+    record = login_logs_collection.find_one({"username" : username, "logout_time" : None})
+
+    if not record:
+        raise HTTPException(status_code=400, detail="No active sign-in found")
+    
+    if now_ist.time() >= cut_off:
+        final_status = "leave"
+    else:
+        final_status = record.get("arrival_status", "on_time")
+
+    
+
+    result = login_logs_collection.update_one(
+        {"_id": record["_id"]},
+        {"$set": {
+            "logout_time": now_ist.astimezone(timezone.utc),
+            "arrival_status": final_status
+        }}
+    )
+
+    if result.matched_count == 0:
         raise HTTPException(status_code = 400, detail = "No active sign-in found")
     
     return{"message" : "Signed Out Successfully"}
