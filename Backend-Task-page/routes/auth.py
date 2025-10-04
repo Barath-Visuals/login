@@ -3,7 +3,7 @@ from pydantic import BaseModel
 import bcrypt
 import os
 from jose import jwt
-from dotenv import load_dotenv
+from config.config import ACCESS_TOKEN_EXPIRE_MINUTES, ADMIN_SETUP_KEY
 from datetime import datetime, timedelta, timezone, time
 from zoneinfo import ZoneInfo
 from typing import Optional
@@ -12,12 +12,10 @@ from database import (user_collection, login_logs_collection, settings_collectio
 from utils.auth import SECRET_KEY, ALGORITHM
 from utils.auth import get_current_user
 
-load_dotenv()
-
 router = APIRouter()
 
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 240))
-ADMIN_SETUP_KEY = os.getenv("ADMIN_SETUP_KEY")
+ACCESS_TOKEN_EXPIRE_MINUTES = ACCESS_TOKEN_EXPIRE_MINUTES
+ADMIN_SETUP_KEY = ADMIN_SETUP_KEY
 
 class User(BaseModel):
     username: str

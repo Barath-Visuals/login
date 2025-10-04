@@ -1,12 +1,10 @@
 from fastapi import HTTPException, Request
 from jose import JWTError, jwt
-from dotenv import load_dotenv
 import os
+from config.config import SECRET_KEY, ALGORITHM
 
-load_dotenv()
-
-SECRET_KEY = os.getenv("SECRET_KEY", "fallback_secret_key_123!@#")
-ALGORITHM = os.getenv("ALGORITHM", "HS256")
+SECRET_KEY = SECRET_KEY
+ALGORITHM = ALGORITHM
 
 
 def get_current_user(request: Request):
