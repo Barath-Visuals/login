@@ -126,7 +126,7 @@ export default function ClientEntryData ({onEntryUpdated, searchText, reload, st
                     ) : (
                         clientData.length === 0 ? (
                             <tr className={styles.entryTable__emptyRow}>
-                            <td className={styles.entryTable__emptyCell} colSpan="7"><span className={styles.empty}>No data available</span></td>
+                            <td className={styles.entryTable__emptyCell} style={{textAlign : "center", padding : "10px"}} colSpan="7"><span className={styles.empty}>No data available</span></td>
                             </tr>
                         ) : (
                             clientData.map((entry, index) => {

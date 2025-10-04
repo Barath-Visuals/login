@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import Login from "./Pages/Login";
+import CreateAdmin from "./Pages/createAdmin.jsx";
 import ProfileUpdate from "./Pages/ProfileUpdate";
 import AsciiArt from "./Components/WaterMark.jsx"
 import UserRoute from "./Pages/UserRoute.jsx";
@@ -132,6 +133,11 @@ export default function AppRoutes() {
       <Route
         path="/login"
         element={<Login onLogin={handleLogin} />}
+      />
+
+      <Route
+        path="/createAdmin"
+        element = {<CreateAdmin/>}
       />
 
       <Route
