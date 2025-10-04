@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from bson import ObjectId
 from datetime import datetime
 from typing import Optional
-from database import cliententry_collection, client_collection, design_collection
+from database import (cliententry_collection, client_collection, design_collection)
 from utils.auth import get_current_user
 
 router = APIRouter()

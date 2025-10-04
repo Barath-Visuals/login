@@ -4,8 +4,14 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 from pydantic import BaseModel
 from pymongo import DESCENDING
+from database import (
+    user_collection, 
+    profile_collection, 
+    login_logs_collection, 
+    cliententry_collection, 
+    inactive_history
+)
 
-from database import user_collection, profile_collection, login_logs_collection, cliententry_collection, inactive_history
 from utils.auth import get_current_user
 
 router = APIRouter()

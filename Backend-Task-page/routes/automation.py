@@ -5,7 +5,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
 from email import encoders
-from database import login_logs_collection, cliententry_collection, client_collection, design_collection, inactive_history
+from database import (login_logs_collection, cliententry_collection, client_collection, design_collection, inactive_history)
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 import os
