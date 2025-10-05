@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from routes import auth, profile, attendance, admin, clientEntries, automation
 from routes import SignInOut, reset_password
 import os
@@ -32,5 +34,30 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# ------------------
+# Root endpoint
+# ------------------
+@app.get("/")
+def root():
+    return {"message": "API is running!"}
+
+# ------------------
+# Static files
+# ------------------
+if not os.path.exists("static"):
+    os.makedirs("static")  # create folder if it doesn't exist
+
+# Mount /static for general static files
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# Serve robots.txt directly at /robots.txt
+@app.get("/robots.txt")
+def robots():
+    return FileResponse("static/robots.txt")
+
+# ------------------
+# Start server (Railway dynamic port)
+# ------------------
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8000)
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port)
