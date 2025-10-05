@@ -8,7 +8,7 @@ from datetime import datetime, timedelta, timezone, time
 from zoneinfo import ZoneInfo
 from typing import Optional
 from datetime import datetime
-from database import (user_collection, login_logs_collection, settings_collection, profile_collection)
+from database import (user_collection, login_logs_collection, settings_collection)
 from utils.auth import SECRET_KEY, ALGORITHM
 from utils.auth import get_current_user
 

@@ -4,6 +4,7 @@ from routes import auth, profile, attendance, admin, clientEntries, automation
 from routes import SignInOut, reset_password
 import os
 from dotenv import load_dotenv
+import uvicorn
 
 load_dotenv()
 
@@ -30,3 +31,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="0.0.0.0", port=8000)
