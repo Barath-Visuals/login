@@ -12,7 +12,7 @@ export default function SendReport() {
 
     const CheckSendReport = async () => {
         try{
-            const res = await axios.get(`${import.meta.env.VITE_API_PATH}/report/send-report`, {
+            const res = await axios.get(`${import.meta.env.VITE_API_PATH}report/send-report`, {
                 headers : {"Authorization" : `Bearer ${token}`}
             })
             setMessage(res.data.message)
