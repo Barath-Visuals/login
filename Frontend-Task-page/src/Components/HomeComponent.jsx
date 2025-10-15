@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import Dashboard from "./dashboard.jsx";
 import HomeAttendance from "./homeAttendance.jsx";
 import HomeEntry from "./HomeEntry.jsx";
-import styles from "../StyleSCSS/joint.module.scss"
+import styles from "../StyleSCSS/Joint.module.scss"
 import axios from "axios";
 
 export default function HomeComponent ({role}) {
