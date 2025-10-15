@@ -55,7 +55,7 @@ const buildAsciiWord = (...letters) => {
   for (let i = 0; i < rows; i++) {
     let row = "";
     for (let letter of letters) {
-      row += letter[i] + "  "; // Add space between letters
+      row += letter[i] + "  "; // Add space between lettersvf
     }
     result.push(row);
   }
