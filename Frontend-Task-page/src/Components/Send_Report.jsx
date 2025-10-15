@@ -8,11 +8,11 @@ export default function SendReport() {
     const [message, setMessage] = useState("");
     const role = getUserRole()
 
-    const token = getUserRole()
+    const token = localStorage.getItem("token")
 
     const CheckSendReport = async () => {
         try{
-            const res = await axios.get("http://127.0.0.1:8000/report/send-report", {
+            const res = await axios.get(`${import.meta.env.VITE_API_PATH}/report/send-report`, {
                 headers : {"Authorization" : `Bearer ${token}`}
             })
             setMessage(res.data.message)

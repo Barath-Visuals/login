@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from datetime import datetime
 from zoneinfo import ZoneInfo
 from typing import Optional
-from database import login_logs_collection, user_collection, profile_collection
+from database import (login_logs_collection, user_collection, profile_collection)
 from utils.auth import get_current_user
 
 router = APIRouter()

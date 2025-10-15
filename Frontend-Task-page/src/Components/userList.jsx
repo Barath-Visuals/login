@@ -12,7 +12,7 @@ export default function UserList() {
 
     useEffect(() => {
         const fetchUsers = async () => {
-            const res = await axios.get('http://localhost:8000/admin/all_users',{
+            const res = await axios.get(`${import.meta.env.VITE_API_PATH}admin/all_users`,{
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

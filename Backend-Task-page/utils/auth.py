@@ -1,8 +1,11 @@
 from fastapi import HTTPException, Request
 from jose import JWTError, jwt
+import os
+from config.config import SECRET_KEY, ALGORITHM
 
-SECRET_KEY = "mytask73391638281111042110@!@#$%^&*()_+=-<>?/.,][{]"
-ALGORITHM = "HS256"
+SECRET_KEY = SECRET_KEY
+ALGORITHM = ALGORITHM
+
 
 def get_current_user(request: Request):
     auth_header = request.headers.get("Authorization")

@@ -22,7 +22,6 @@ export default function AdminSidebar({onLogout}) {
         },
         clientView : {
             admin : "/admin/clientView",
-            HR : "/hr/clientView",
             Manager : "/manager/clientView",
             Designer : "/user/clientView"
         },
@@ -75,15 +74,19 @@ export default function AdminSidebar({onLogout}) {
                 </li>
                 {role !== "staff" ? (
                     <>
-                        <li className={`${styles.entry}`} onClick={() => navigate(rolePaths.clientView[role])}>
-                            <a className={styles.e_icon}>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="20" viewBox="0 0 16 20" fill="none">
-                                    <path d="M8 11V15M6 13H10M3 19C2.46957 19 1.96086 18.7893 1.58579 18.4142C1.21071 18.0391 1 17.5304 1 17V1H10L15 6V17C15 17.5304 14.7893 18.0391 14.4142 18.4142C14.0391 18.7893 13.5304 19 13 19H3Z" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <path d="M9 1V7H15" stroke="white" stroke-linejoin="round"/>
-                                </svg>
-                            </a>
-                        </li>
-                        {role !== "Manager" && role !== "Designer" ? (
+                        {role !== "HR" && role !== "Worker" ? (
+                            <>
+                                <li className={`${styles.entry}`} onClick={() => navigate(rolePaths.clientView[role])}>
+                                    <a className={styles.e_icon}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="20" viewBox="0 0 16 20" fill="none">
+                                            <path d="M8 11V15M6 13H10M3 19C2.46957 19 1.96086 18.7893 1.58579 18.4142C1.21071 18.0391 1 17.5304 1 17V1H10L15 6V17C15 17.5304 14.7893 18.0391 14.4142 18.4142C14.0391 18.7893 13.5304 19 13 19H3Z" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M9 1V7H15" stroke="white" stroke-linejoin="round"/>
+                                        </svg>
+                                    </a>
+                                </li>
+                            </>
+                        ) : null}
+                        {role !== "Manager" && role !== "Designer" && role !== "Worker" ? (
                             <>
                                 <li className={`${styles.entry}`} onClick={() => navigate(rolePaths.createStaff[role])}>
                                     <a className={styles.e_icon}>
@@ -96,7 +99,7 @@ export default function AdminSidebar({onLogout}) {
                             
                         ) : null }
 
-                        {role !== "Designer" ?(
+                        {role !== "Designer" && role !== "Worker" ?(
                             <>
                                 <li className={`${styles.entry}`} onClick={() => navigate(rolePaths.viewStaffDetails[role])}>
                                     <a className={styles.e_icon}>

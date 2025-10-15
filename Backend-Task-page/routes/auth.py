@@ -1,22 +1,26 @@
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 import bcrypt
+import os
 from jose import jwt
+from config.config import ACCESS_TOKEN_EXPIRE_MINUTES, ADMIN_SETUP_KEY
 from datetime import datetime, timedelta, timezone, time
 from zoneinfo import ZoneInfo
 from typing import Optional
 from datetime import datetime
-from database import user_collection, login_logs_collection, settings_collection, profile_collection
+from database import (user_collection, login_logs_collection, settings_collection)
 from utils.auth import SECRET_KEY, ALGORITHM
 from utils.auth import get_current_user
 
 router = APIRouter()
 
-ACCESS_TOKEN_EXPIRE_MINUTES = 240
+ACCESS_TOKEN_EXPIRE_MINUTES = ACCESS_TOKEN_EXPIRE_MINUTES
+ADMIN_SETUP_KEY = ADMIN_SETUP_KEY
 
 class User(BaseModel):
     username: str
     password: str
+    setup_key: Optional[str] = None
 
 
 def help_user(user) -> dict:
@@ -24,8 +28,10 @@ def help_user(user) -> dict:
         "id": str(user["_id"]),
         "username": user["username"],
         "role": user.get("role", "staff"),
+        "isStatus": user.get("isStatus", "Active"),
         "signup_date": user.get("signup_date"),
-        "created_at": user.get("created_at")
+        "created_at": user.get("created_at"),
+        "inactive_date": user.get("inactive_date")
     }
 
 
@@ -43,7 +49,12 @@ def signup(user : User):
         raise HTTPException(status_code=400, detail="user already exists")
 
     admin_exists = settings_collection.find_one({"admin_created": True})
-    role = "admin" if not admin_exists else "staff"
+    if not admin_exists:
+        if not user.setup_key or user.setup_key != ADMIN_SETUP_KEY:
+            raise HTTPException(status_code=403, detail="Invalid admin setup key")
+        role = "admin"
+    else:
+        role = "staff"
 
     hashed_password = bcrypt.hashpw(user.password.encode('utf-8'), bcrypt.gensalt())
     signup_date = datetime.now(ZoneInfo('Asia/Kolkata'))

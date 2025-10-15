@@ -1,33 +1,7 @@
-import React from "react";
-import { useEffect, useState } from 'react';
-import axios from "axios";
 import styles from "../StyleSCSS/dashboard.module.scss";
 
-export default function HomeEntry () {
-    const [entries, setEntries] = useState([]);
-    const [loading, setLoading] = useState(true);
+export default function HomeEntry ({entries}) {
 
-    const fetchDashboardEntries = async () => {
-        try{
-
-            const response = await axios.get(`http://localhost:8000/clientDashboard`, {
-                params: {
-                    limit : 16
-                }
-            })
-            setEntries(response.data);
-        }catch (error){
-            console.log(error);
-        }finally {
-            setLoading(false);
-        }
-    }
-
-    useEffect(() => {
-        fetchDashboardEntries();
-    }, []);
-
-    if (loading) return <p className="">Loading...</p>;
     return(
         <div className={styles.homeEntry_container}>
             <table className={styles.homeEntry_table}>

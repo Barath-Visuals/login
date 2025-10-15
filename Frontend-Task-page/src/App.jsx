@@ -2,8 +2,8 @@
 import React, { useState, useEffect } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import Login from "./Pages/Login";
+import CreateAdmin from "./Pages/createAdmin.jsx";
 import ProfileUpdate from "./Pages/ProfileUpdate";
-import AsciiArt from "./Components/WaterMark.jsx"
 import UserRoute from "./Pages/UserRoute.jsx";
 import AdminRoute from "./Pages/AdminRoute.jsx";
 import HRStaff from "./Pages/HR_Route.jsx";
@@ -11,8 +11,8 @@ import axios from "axios";
 import { getUserRole } from "./utils/auth.jsx";
 
 export default function AppRoutes() {
-  const [user, setUser] = useState("guest");
-  const [profileComplete, setProfileComplete] = useState(false);
+  const [user, setUser] = useState(undefined);
+  const [profileComplete, setProfileComplete] = useState(undefined);
   const navigate = useNavigate();
 
   // Check user profile on load
@@ -28,7 +28,7 @@ export default function AppRoutes() {
       }
 
       try {
-        const res = await axios.get("http://localhost:8000/user/profile", {
+        const res = await axios.get(`${import.meta.env.VITE_API_PATH}user/profile`, {
           headers: {
             Authorization: `Bearer ${storedToken}`, // ✅ Must include Bearer!
           },
@@ -48,12 +48,8 @@ export default function AppRoutes() {
   }, []);
 
   if (user === undefined || profileComplete === undefined) {
-    return <div>Loading...</div>;
+    return <div style={{width : "100%", height : "100%", display : "flex", alignItems : "center", justifyContent : "center", fontSize : "14px", color : "white"}}>Loading...</div>;
   }
-
-  useEffect(() => {
-    console.log(AsciiArt)
-  }, [])
 
   const handleLogin = async ({ user, token }) => {
     setUser(user);
@@ -61,7 +57,7 @@ export default function AppRoutes() {
     localStorage.setItem("user", JSON.stringify(user));
 
     try {
-      const res = await axios.get("http://localhost:8000/user/profile", {
+      const res = await axios.get(`${import.meta.env.VITE_API_PATH}user/profile`, {
         headers: {
           Authorization: `Bearer ${token}`, // ✅ Must include Bearer!
         }
@@ -132,6 +128,11 @@ export default function AppRoutes() {
       <Route
         path="/login"
         element={<Login onLogin={handleLogin} />}
+      />
+
+      <Route
+        path="/createAdmin"
+        element = {<CreateAdmin/>}
       />
 
       <Route

@@ -6,20 +6,20 @@ import Absent from './Absent.jsx';
 import Time from './onTime.jsx';
 import TotalDay from "./totalDay.jsx"
 
-export default function dashboard() {
+export default function dashboard({summary}) {
     return(
         <div className={styles.dashboardContainer}>
             <div className={styles.dashboardSub}>
-                <TotalDay/>
+                <TotalDay total={summary?.total_days || 0}/>
             </div>
             <div className={styles.dashboardSub}>
-                <Time/>
+                <Time onTime={summary?.on_time_count || 0}/>
             </div>
             <div className={styles.dashboardSub}>
-                <Absent/>
+                <Absent absent={summary?.leave_days || 0}/>
             </div>
             <div className={styles.dashboardSub}>
-                <Late/>
+                <Late late={summary?.late_count || 0}/>
             </div>
         </div>
     )

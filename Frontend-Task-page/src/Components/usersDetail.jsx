@@ -1,5 +1,5 @@
 //import React from 'react';
-import { useCallback, useEffect, useState } from 'react';
+import { Profiler, useCallback, useEffect, useState } from 'react';
 import Calendar from './CalendarModal.jsx';
 import axios from 'axios';
 import clxs from "clsx";
@@ -9,7 +9,8 @@ import { getUserRole } from '../utils/auth.jsx';
 
 export default function ShowUserDetails ({user}) {
     const [showCalendar, setShowCalendar] = useState(false);
-    const [isEditing, setIsEditing] = useState(false);
+    const [isEditingProfile, setIsEditingProfile] = useState(false);
+    const [isEditingPassword, setIsEditingPassword] = useState(false);
     const [editedUser, setEditedUser] = useState(null);
     const [userDetail, setUserDetail] = useState(user);
     const [selectedUsername, setSelectedUsername] = useState(null);
@@ -17,14 +18,10 @@ export default function ShowUserDetails ({user}) {
 
     useEffect(() => {
         if (user) {
-            setEditedUser({ ...user });
+            setEditedUser({ ...user, newPassword: "", confirmPassword: "" });
+            setUserDetail(user);
         }
     }, [user]);
-
-    useEffect(() => {
-        setUserDetail(user);
-
-    }, [user])
 
     const handleChange = (e) => {
         setEditedUser({...editedUser, [e.target.name]: e.target.value});
@@ -40,29 +37,50 @@ export default function ShowUserDetails ({user}) {
         setSelectedUsername(null)
     }
 
-    const handleSave = async() => {
-        try{
-            const payload = {
-                username : editedUser.username,
-                name : editedUser.name,
-                age : editedUser.age,
-                phone: editedUser.phone,
-                address : editedUser.address,
-                aadhaar : editedUser.aadhaar || "",
+    const handleSave = async () => {
+        try {
+        // SAVE PASSWORD
+        if (isEditingPassword) {
+            if (editedUser.newPassword !== editedUser.confirmPassword) {
+            alert("Passwords do not match!");
+            return;
             }
 
-            await axios.post(`http://localhost:8000/admin/profile/update`, payload,{
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                }
-            });
-            alert("user details updated")
-            setIsEditing(false)
-            setUserDetail({ ...editedUser })
-        } catch (error) {
-            console.error("failed", error)
+            await axios.post(
+            `${import.meta.env.VITE_API_PATH}admin/reset-password`,
+            { username: editedUser.username, newPassword: editedUser.newPassword },
+            { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+            );
+
+            alert("Password updated!");
+            setEditedUser({ ...editedUser, newPassword: "", confirmPassword: "" });
+            setIsEditingPassword(false);
         }
-    }
+
+        // SAVE PROFILE
+        if (isEditingProfile) {
+            const payload = {
+            username: editedUser.username,
+            name: editedUser.name,
+            age: editedUser.age,
+            phone: editedUser.phone,
+            address: editedUser.address,
+            aadhaar: editedUser.aadhaar || "",
+            };
+
+            await axios.post(`${import.meta.env.VITE_API_PATH}admin/profile/update`, payload, {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+            });
+
+            alert("Profile updated!");
+            setUserDetail({ ...editedUser });
+            setIsEditingProfile(false);
+        }
+        } catch (error) {
+        console.error("Update failed", error);
+        alert("Update failed!");
+        }
+    };
 
     if (!editedUser) return null
     return (
@@ -70,7 +88,7 @@ export default function ShowUserDetails ({user}) {
             <div className={styles.container_content}>
                 <div className={styles.user_section}>
                     <span className={styles.card_title}>Staff Details</span>
-                    {isEditing ? (
+                    {isEditingProfile && (
                         <>
                             <div className={styles.header}>
                                 <input placeholder='Name' name='name' value={editedUser.name || ''} onChange={handleChange}/>
@@ -79,9 +97,42 @@ export default function ShowUserDetails ({user}) {
                                 <input placeholder='Address' name='address' value={editedUser.address || ''} onChange={handleChange}/>
                                 <input placeholder='Aadhaar' name='aadhaar' value={editedUser.aadhaar || ''} onChange={handleChange}/>
                             </div>
-
                         </>
-                    ): (
+                    )}
+
+                    {isEditingPassword && (
+                        <>
+                            <form onSubmit={(e) => {e.preventDefault(), handleSave()}} className={styles.header}>
+                                <input
+                                    type='text'
+                                    name='username'
+                                    value={editedUser.username}
+                                    readOnly
+                                    hidden
+                                    autoComplete='username'
+                                />
+                                <input
+                                    type="password"
+                                    placeholder="New Password"
+                                    name="newPassword"
+                                    value={editedUser.newPassword}
+                                    onChange={handleChange}
+                                    autoComplete='new-password'
+                                />
+                                <input
+                                    type="password"
+                                    placeholder="Confirm Password"
+                                    name="confirmPassword"
+                                    value={editedUser.confirmPassword}
+                                    onChange={handleChange}
+                                    autoComplete='new-password'
+                                />
+                            </form>
+                        </>
+                    )}
+
+                    {!isEditingProfile && !isEditingPassword && (
+
                         <>
                             <div className={styles.detailspara}>
                                 <div className={styles.card__icon}>
@@ -130,9 +181,26 @@ export default function ShowUserDetails ({user}) {
                     )}
                 </div>
                 <div className={styles.button_group}>
-                    {role !== "Manager" ? (
-                        isEditing ? (
-                            <>
+                    {role !== "Manager" && (
+                        <>
+                            {!isEditingProfile && !isEditingPassword && (
+                                <button onClick={() => setIsEditingProfile(true)}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" fill="none">
+                                        <path d="M0.5 17.8423H17.4C17.5326 17.8423 17.6598 17.7896 17.7536 17.6958C17.8473 17.6021 17.9 17.4749 17.9 17.3423C17.9 17.2097 17.8473 17.0825 17.7536 16.9887C17.6598 16.895 17.5326 16.8423 17.4 16.8423H0.5C0.367392 16.8423 0.240215 16.895 0.146446 16.9887C0.0526783 17.0825 0 17.2097 0 17.3423C0 17.4749 0.0526783 17.6021 0.146446 17.6958C0.240215 17.7896 0.367392 17.8423 0.5 17.8423ZM6.662 14.0843C7.08418 13.9655 7.46946 13.7419 7.782 13.4343L17.322 3.89429C17.6487 3.5663 17.8321 3.12222 17.8321 2.65929C17.8321 2.19635 17.6487 1.75227 17.322 1.42429L16.382 0.494286C16.0491 0.176996 15.6069 0 15.147 0C14.6871 0 14.2449 0.176996 13.912 0.494286L4.372 10.0243C4.06436 10.3352 3.84368 10.7214 3.732 11.1443L2.992 13.9043C2.95721 14.0304 2.95646 14.1634 2.98984 14.2899C3.02321 14.4164 3.08952 14.5318 3.182 14.6243C3.32372 14.7632 3.51359 14.842 3.712 14.8443L6.662 14.0843ZM7.072 12.7243C6.88759 12.9119 6.65621 13.0466 6.402 13.1143L5.432 13.3743L4.432 12.3743L4.692 11.4043C4.76104 11.1506 4.89554 10.9196 5.082 10.7343L5.462 10.3643L7.452 12.3543L7.072 12.7243ZM8.162 11.6443L6.172 9.65429L12.902 2.92429L14.892 4.91429L8.162 11.6443ZM16.612 3.19429L15.602 4.20429L13.612 2.21429L14.622 1.19429C14.7626 1.05384 14.9532 0.974946 15.152 0.974946C15.3508 0.974946 15.5414 1.05384 15.682 1.19429L16.612 2.13429C16.7515 2.27542 16.8297 2.46586 16.8297 2.66429C16.8297 2.86272 16.7515 3.05315 16.612 3.19429Z" fill="#ffffffff"/>
+                                    </svg>
+                                </button>
+                            )}
+
+                            {!isEditingProfile && !isEditingPassword && (
+                                <button onClick={() => setIsEditingPassword(true)}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="19" viewBox="0 0 14 19" fill="none">
+                                        <path fillRule="evenodd" clipRule="evenodd" d="M2 5C2 2.238 4.238 0 7 0C9.762 0 12 2.238 12 5V8H12.4C13.28 8 14 8.72 14 9.6V16.6C14 17.92 12.92 19 11.6 19H2.4C1.08 19 0 17.92 0 16.6V9.6C0 8.72 0.72 8 1.6 8H2V5ZM10 5V8H4V5C4 3.342 5.342 2 7 2C8.658 2 10 3.342 10 5ZM7 10.25C6.60234 10.2496 6.21639 10.3846 5.90573 10.6329C5.59507 10.8811 5.37822 11.2278 5.2909 11.6157C5.20357 12.0037 5.25098 12.4098 5.42531 12.7672C5.59965 13.1246 5.89051 13.412 6.25 13.582V16C6.25 16.1989 6.32902 16.3897 6.46967 16.5303C6.61032 16.671 6.80109 16.75 7 16.75C7.19891 16.75 7.38968 16.671 7.53033 16.5303C7.67098 16.3897 7.75 16.1989 7.75 16V13.582C8.10949 13.412 8.40035 13.1246 8.57469 12.7672C8.74902 12.4098 8.79643 12.0037 8.7091 11.6157C8.62178 11.2278 8.40493 10.8811 8.09427 10.6329C7.78361 10.3846 7.39766 10.2496 7 10.25Z" fill="#ffffffff"/>
+                                    </svg>
+                                </button>
+                            )}
+
+                            {(isEditingProfile || isEditingPassword) && (
+                                <>
                                 <button onClick={handleSave}>
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none">
                                         <path d="M14 19V17C14 15.114 14 14.172 13.414 13.586C12.828 13 11.886 13 10 13H9C7.114 13 6.172 13 5.586 13.586C5 14.172 5 15.114 5 17V19" stroke="#ffffffff"/>
@@ -140,20 +208,21 @@ export default function ShowUserDetails ({user}) {
                                         <path d="M1 7C1 4.172 1 2.757 1.879 1.879C2.757 1 4.172 1 7 1H14.172C14.58 1 14.785 1 14.968 1.076C15.151 1.152 15.297 1.296 15.586 1.586L18.414 4.414C18.704 4.704 18.848 4.848 18.924 5.032C19 5.215 19 5.42 19 5.828V13C19 15.828 19 17.243 18.121 18.121C17.243 19 15.828 19 13 19H7C4.172 19 2.757 19 1.879 18.121C1 17.243 1 15.828 1 13V7Z" stroke="#ffffffff"/>
                                     </svg>
                                 </button>
-                                <button onClick={() => {setIsEditing(false); setEditedUser(user);}}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12" fill="none">
+                                <button
+                                    onClick={() => {
+                                    setEditedUser(user);
+                                    setIsEditingProfile(false);
+                                    setIsEditingPassword(false);
+                                    }}
+                                >
+                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12" fill="none">
                                         <path fill-rule="evenodd" clip-rule="evenodd" d="M11.1404 1.80676L10.1937 0.860107L6.00035 5.06011L1.80701 0.860107L0.860352 1.80676L5.06035 6.00011L0.860352 10.1935L1.80701 11.1401L6.00035 6.94011L10.1937 11.1401L11.1404 10.1935L6.94035 6.00011L11.1404 1.80676Z" fill="#ffffffff"/>
                                     </svg>
                                 </button>
-                            </>
-                        ): (
-                            <button onClick={() => setIsEditing(true)}>
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" fill="none">
-                                    <path d="M0.5 17.8423H17.4C17.5326 17.8423 17.6598 17.7896 17.7536 17.6958C17.8473 17.6021 17.9 17.4749 17.9 17.3423C17.9 17.2097 17.8473 17.0825 17.7536 16.9887C17.6598 16.895 17.5326 16.8423 17.4 16.8423H0.5C0.367392 16.8423 0.240215 16.895 0.146446 16.9887C0.0526783 17.0825 0 17.2097 0 17.3423C0 17.4749 0.0526783 17.6021 0.146446 17.6958C0.240215 17.7896 0.367392 17.8423 0.5 17.8423ZM6.662 14.0843C7.08418 13.9655 7.46946 13.7419 7.782 13.4343L17.322 3.89429C17.6487 3.5663 17.8321 3.12222 17.8321 2.65929C17.8321 2.19635 17.6487 1.75227 17.322 1.42429L16.382 0.494286C16.0491 0.176996 15.6069 0 15.147 0C14.6871 0 14.2449 0.176996 13.912 0.494286L4.372 10.0243C4.06436 10.3352 3.84368 10.7214 3.732 11.1443L2.992 13.9043C2.95721 14.0304 2.95646 14.1634 2.98984 14.2899C3.02321 14.4164 3.08952 14.5318 3.182 14.6243C3.32372 14.7632 3.51359 14.842 3.712 14.8443L6.662 14.0843ZM7.072 12.7243C6.88759 12.9119 6.65621 13.0466 6.402 13.1143L5.432 13.3743L4.432 12.3743L4.692 11.4043C4.76104 11.1506 4.89554 10.9196 5.082 10.7343L5.462 10.3643L7.452 12.3543L7.072 12.7243ZM8.162 11.6443L6.172 9.65429L12.902 2.92429L14.892 4.91429L8.162 11.6443ZM16.612 3.19429L15.602 4.20429L13.612 2.21429L14.622 1.19429C14.7626 1.05384 14.9532 0.974946 15.152 0.974946C15.3508 0.974946 15.5414 1.05384 15.682 1.19429L16.612 2.13429C16.7515 2.27542 16.8297 2.46586 16.8297 2.66429C16.8297 2.86272 16.7515 3.05315 16.612 3.19429Z" fill="#ffffffff"/>
-                                </svg>
-                            </button>
-                        )
-                    ) : null }
+                                </>
+                            )}
+                        </>
+                    )}
                     <button className={styles.Calendarbutton} onClick={() => handleOpenCalendar(user.username)}>
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 40" fill="none">
                             <path d="M10.6665 1.66667V9M25.3332 1.66667V9" stroke="#ffffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>

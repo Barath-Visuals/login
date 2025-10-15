@@ -5,6 +5,7 @@ import styles from "../StyleSCSS/admin.module.scss"
 import { useLocation } from 'react-router-dom';
 import clsx from "clsx";
 import { getUserRole } from '../utils/auth';
+import Alert from "./Alert_Msg.jsx";
 //import { use } from 'react';
 
 export default function Staff_Admin() {
@@ -14,14 +15,16 @@ export default function Staff_Admin() {
     const [editingUser, setEditingUser] = useState(null);
     const [editRole, setEditRole] = useState("");
     const [editStatus, setEditStatus] = useState("");
+    const [confirmUser, setConfirmUser] = useState(null);
     const token = localStorage.getItem("token");
     const role = getUserRole()
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 500);
-    const [alert, setAlert] = useState({message:" ", type:" "});
+    const [showAlert, setShowAlert] = useState(false)
+    const [alertMessage, setAlertMessage] = useState("")
+    const [statusCode, setStatusCode] = useState(200);
     const [reload, setReload] = useState(false);
     const location = useLocation();
 
-    console.log("expose: ", role)
     useEffect(() => {
         const handleSize = () => setIsMobile(window.innerWidth <= 500)
         window.addEventListener("resize", handleSize)
@@ -30,7 +33,7 @@ export default function Staff_Admin() {
 
     const deleteUser = async (username) => {
         try{
-            const response = await axios.delete(`http://localhost:8000/users/${username}`,{
+            const response = await axios.delete(`${import.meta.env.VITE_API_PATH}users/${username}`,{
                 headers: { "Authorization": `Bearer ${token}`}
             });
             if (response.status === 200) {
@@ -50,40 +53,50 @@ export default function Staff_Admin() {
 
     const handleUpdate = async (username) => {
         try{
-            const response = await axios.post(`http://localhost:8000/update-role`, {
+            const response = await axios.post(`${import.meta.env.VITE_API_PATH}update-role`, {
                 username: username,
                 role : editRole,
                 isStatus : editStatus
             })
 
+            setShowAlert(false)
             if (response.status === 200) {
-                setAlert({message:"User Update Successfully", type:"success"});
-
-                setStaff (prevStaff => prevStaff.map(user => 
-                    user.username === username ? {...user, role : editRole, isStatus : editStatus} : user)
-                )
-
-                const cacheData = JSON.parse(sessionStorage.getItem("staffData")) || [];
-                const updateData = cacheData.map(user => user.username === username ? {...user, role : editRole, isStatus : editStatus} : user )
-
-                sessionStorage.setItem("staffData", JSON.stringify(updateData));
-
-
-                setEditingUser(null);
-                setEditRole("")
-                setEditStatus("")
-                // fetchStaff()
                 setTimeout(() => {
-                    setAlert({message:" ", type:"remove"})
-                },3000)
+                    setAlertMessage("User updated successfully!")
+                    setShowAlert(true)
+                    setStatusCode(200)
+    
+                    setStaff (prevStaff => prevStaff.map(user => 
+                        user.username === username ? {...user, role : response.data.role, isStatus : response.data.isStatus, inactive_date : response.data.inactive_date} : user)
+                    )
+    
+                    const cacheData = JSON.parse(sessionStorage.getItem("staffData")) || [];
+                    const updateData = cacheData.map(user => user.username === username ? {...user, role : response.data.role, isStatus : response.data.isStatus, inactive_date : response.data.inactive_date} : user )
+    
+                    sessionStorage.setItem("staffData", JSON.stringify(updateData));
+    
+    
+                    setEditingUser(null);
+                    setEditRole("")
+                    setEditStatus("")
+                    console.log("working")
+                },100)
             }
         } catch (error) {
-            console.error("error updating user", error)
-            if (error.response && error.response.data && error.response.data.detail) {
-                setAlert({ message: error.response.data.detail, type: "error" });
-            } else {
-                setAlert({ message: "Update failed", type: "error" });
-            }
+            setShowAlert(false)
+            setTimeout(() => {
+
+                const backendStatus = error.response?.status || 500 ;
+                setAlertMessage(error.response?.data?.detail || "Update Failed")
+    
+                if (backendStatus === 400 || backendStatus === 404) {
+                    setAlertMessage(backendStatus)
+                } else {
+                    setStatusCode(500)
+                }
+    
+                setShowAlert(true);
+            }, 100)
         }
     }
 
@@ -105,7 +118,7 @@ export default function Staff_Admin() {
 
         const startTime = Date.now()
         try{
-            const response = await axios.get(`http://localhost:8000/getUser`, {
+            const response = await axios.get(`${import.meta.env.VITE_API_PATH}getUser`, {
                 headers: { "Authorization": `Bearer ${token}`}
             });
 
@@ -154,10 +167,15 @@ export default function Staff_Admin() {
                             <th className={styles.staffTable__th}>Date</th>
                             <th className={styles.staffTable__th}>Role</th>
                             <th className={styles.staffTable__th}>Status</th>
-                            {role === "admin" ? (
+                            <th className={styles.staffTable__th}>Deactivated</th>
+                            {role === "admin" || role === "HR"? (
                                 <>
                                     <th className={styles.staffTable__th}>Edit</th>
-                                    <th className={styles.staffTable__th}>Delete</th>
+                                    {role === "admin" ? (
+                                        <>
+                                            <th className={styles.staffTable__th}>Delete</th>
+                                        </>
+                                    ) : null}
                                 </>
                             ): (
                                 null
@@ -267,11 +285,29 @@ export default function Staff_Admin() {
                                                 </>
                                             )}
                                         </td>
+                                        
+                                        <td className={styles.staffTable__td}>
+                                            <div className={styles.staffTable__userConatiiner}>
+                                                <div className={styles.staffTable__user}>
+                                                    <div className={styles.staffTable__roleContainer}>
+                                                        <span className={styles.staffTable__role} style={{whiteSpace : "nowrap"}}>
+                                                            {
+                                                                user.inactive_date ? 
+                                                                (
+                                                                    new Date(user.inactive_date).toLocaleDateString("en-GB", {day : "2-digit", month : "short", year : "numeric"})
+                                                                ) :
+                                                                ""
+                                                            }
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
 
-                                        {role === "admin" ? (
+                                        {role === "admin" || role === "HR"? (
                                             <>
                                                 <td className={styles.staffTable__td}>
-                                                    {isEditing && role === "admin" ? (
+                                                    {isEditing  ? (
                                                         <>
                                                                     <div className={styles.staffTable__buttons}>
                                                                         <button
@@ -313,20 +349,24 @@ export default function Staff_Admin() {
                                                         </div>
                                                     )}
                                                 </td>
-                                                <td className={styles.staffTable__td}>
-                                                    <div className={styles.staffTable__userConatiiner}>
-                                                        <div className={styles.staffTable__user}>
-                                                            <button
-                                                                className={styles.staffTable__btnDelete}
-                                                                onClick={() => deleteUser(user.username)}
-                                                            >
-                                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="20" viewBox="0 0 18 20" fill="none">
-                                                                <path d="M3 18C2.45 18 1.97934 17.8043 1.588 17.413C1.19667 17.0217 1.00067 16.5507 1 16V3C0.71667 3 0.479337 2.904 0.288004 2.712C0.0966702 2.52 0.000670115 2.28267 3.44827e-06 2C-0.000663218 1.71733 0.0953369 1.48 0.288004 1.288C0.48067 1.096 0.718003 1 1 1H5C5 0.716667 5.096 0.479333 5.288 0.288C5.48 0.0966668 5.71734 0.000666667 6 0H10C10.2833 0 10.521 0.0960001 10.713 0.288C10.905 0.48 11.0007 0.717333 11 1H15C15.2833 1 15.521 1.096 15.713 1.288C15.905 1.48 16.0007 1.71733 16 2C15.9993 2.28267 15.9033 2.52033 15.712 2.713C15.5207 2.90567 15.2833 3.00133 15 3V16C15 16.55 14.8043 17.021 14.413 17.413C14.0217 17.805 13.5507 18.0007 13 18H3ZM6 14C6.28334 14 6.521 13.904 6.713 13.712C6.905 13.52 7.00067 13.2827 7 13V6C7 5.71667 6.904 5.47933 6.712 5.288C6.52 5.09667 6.28267 5.00067 6 5C5.71734 4.99933 5.48 5.09533 5.288 5.288C5.096 5.48067 5 5.718 5 6V13C5 13.2833 5.096 13.521 5.288 13.713C5.48 13.905 5.71734 14.0007 6 14ZM10 14C10.2833 14 10.521 13.904 10.713 13.712C10.905 13.52 11.0007 13.2827 11 13V6C11 5.71667 10.904 5.47933 10.712 5.288C10.52 5.09667 10.2827 5.00067 10 5C9.71734 4.99933 9.48 5.09533 9.288 5.288C9.096 5.48067 9 5.718 9 6V13C9 13.2833 9.096 13.521 9.288 13.713C9.48 13.905 9.71734 14.0007 10 14Z" fill="#EA3B10"/>
-                                                                </svg>
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </td>
+                                                {role === "admin" ? (
+                                                    <>
+                                                        <td className={styles.staffTable__td}>
+                                                            <div className={styles.staffTable__userConatiiner}>
+                                                                <div className={styles.staffTable__user}>
+                                                                    <button
+                                                                        className={styles.staffTable__btnDelete}
+                                                                        onClick={() => setConfirmUser(user.username)}
+                                                                    >
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="20" viewBox="0 0 18 20" fill="none">
+                                                                        <path d="M3 18C2.45 18 1.97934 17.8043 1.588 17.413C1.19667 17.0217 1.00067 16.5507 1 16V3C0.71667 3 0.479337 2.904 0.288004 2.712C0.0966702 2.52 0.000670115 2.28267 3.44827e-06 2C-0.000663218 1.71733 0.0953369 1.48 0.288004 1.288C0.48067 1.096 0.718003 1 1 1H5C5 0.716667 5.096 0.479333 5.288 0.288C5.48 0.0966668 5.71734 0.000666667 6 0H10C10.2833 0 10.521 0.0960001 10.713 0.288C10.905 0.48 11.0007 0.717333 11 1H15C15.2833 1 15.521 1.096 15.713 1.288C15.905 1.48 16.0007 1.71733 16 2C15.9993 2.28267 15.9033 2.52033 15.712 2.713C15.5207 2.90567 15.2833 3.00133 15 3V16C15 16.55 14.8043 17.021 14.413 17.413C14.0217 17.805 13.5507 18.0007 13 18H3ZM6 14C6.28334 14 6.521 13.904 6.713 13.712C6.905 13.52 7.00067 13.2827 7 13V6C7 5.71667 6.904 5.47933 6.712 5.288C6.52 5.09667 6.28267 5.00067 6 5C5.71734 4.99933 5.48 5.09533 5.288 5.288C5.096 5.48067 5 5.718 5 6V13C5 13.2833 5.096 13.521 5.288 13.713C5.48 13.905 5.71734 14.0007 6 14ZM10 14C10.2833 14 10.521 13.904 10.713 13.712C10.905 13.52 11.0007 13.2827 11 13V6C11 5.71667 10.904 5.47933 10.712 5.288C10.52 5.09667 10.2827 5.00067 10 5C9.71734 4.99933 9.48 5.09533 9.288 5.288C9.096 5.48067 9 5.718 9 6V13C9 13.2833 9.096 13.521 9.288 13.713C9.48 13.905 9.71734 14.0007 10 14Z" fill="#EA3B10"/>
+                                                                        </svg>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </>
+                                                ) : null}
                                             </>
                                         ) : (
                                             null
@@ -338,7 +378,7 @@ export default function Staff_Admin() {
                                 })
                             ) : (
                                 <tr>
-                                    <td colSpan="6" style={{ textAlign: "center", padding: "1rem" }}>
+                                    <td colSpan="8" style={{ textAlign: "center", padding: "1rem" }}>
                                         No staff found
                                     </td>
                                 </tr>
@@ -346,11 +386,42 @@ export default function Staff_Admin() {
                         </tbody>
                     </table>
             </div>
+
+            {confirmUser && (
+                <div className={styles.confirmOverlay}>
+                    <div className={styles.confirmBox}>
+                        <span className={styles.confirmTitle}>Delete Staff</span>
+                        <p>Are you sure you want to delete <strong>{confirmUser}</strong>?</p>
+                        <hr className={styles.confirmDivider} />
+                        <div className={styles.confirmButtons}>
+                        <button
+                            className={styles.confirmYes}
+                            onClick={() => {
+                            deleteUser(confirmUser);
+                            setConfirmUser(null);
+                            }}
+                        >
+                            Yes, Delete
+                        </button>
+                        <button
+                            className={styles.confirmNo}
+                            onClick={() => setConfirmUser(null)}
+                        >
+                            No, Cancel
+                        </button>
+                        </div>
+                    </div>
+                    </div>
+
+            )}
             
-            {alert.type === "success" && (
-                <div className={`${styles.alert} ${styles[alert.type]}`}>
-                    {alert.message}
-                </div>
+            {showAlert && (
+                <Alert
+                    message={alertMessage}
+                    statusCode={statusCode}
+                    duration={4000}
+                    onClose = {() => setShowAlert(false)}
+                />
             )}
         </>
     )

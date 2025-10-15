@@ -17,7 +17,6 @@ export default function AdminMobileSideBar({ onSelectSection, onLogout }) {
         },
         clientView : {
             admin : "/admin/clientView",
-            HR : "/hr/clientView",
             Manager : "/manager/clientView",
             Designer : "/user/clientView"
         },
@@ -58,14 +57,17 @@ export default function AdminMobileSideBar({ onSelectSection, onLogout }) {
 
         {role !== "staff" ? (
           <>
-          
+          {role !== "HR" && role !== "Worker" ? (
+            <>
               <button className={styles.item} onClick={() => navigate(rolePaths.clientView[role])}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="20" viewBox="0 0 16 20" fill="none">
                   <path d="M8 11V15M6 13H10M3 19C2.46957 19 1.96086 18.7893 1.58579 18.4142C1.21071 18.0391 1 17.5304 1 17V1H10L15 6V17C15 17.5304 14.7893 18.0391 14.4142 18.4142C14.0391 18.7893 13.5304 19 13 19H3Z" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
                   <path d="M9 1V7H15" stroke="white" stroke-linejoin="round"/>
                 </svg>
               </button>
-              {role !== "Manager" && role !== "Designer" ? (
+            </>
+          ) : null}
+              {role !== "Manager" && role !== "Designer" && role !== "Worker" ? (
                 <>
                   <button className={styles.item} onClick={() => navigate(rolePaths.createStaff[role])}>
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34 34" fill="none">
@@ -75,7 +77,7 @@ export default function AdminMobileSideBar({ onSelectSection, onLogout }) {
                 </>
               ) : null}
       
-              {role !== "Designer" ? (
+              {role !== "Designer" && role !== "Worker" ? (
                 <>
                   <button className={styles.item} onClick={() => navigate(rolePaths.viewStaffDetails[role])}>
                       <svg xmlns="http://www.w3.org/2000/svg"viewBox="0 0 14 18" fill="none">
@@ -87,7 +89,7 @@ export default function AdminMobileSideBar({ onSelectSection, onLogout }) {
       
               {role !== "Designer" && role !== "admin" && role !== "Worker" ? (
                 <>
-                  <button className={styles.item} onClick={() => navigate(rolePaths.viewStaffDetails[role])}>
+                  <button className={styles.item} onClick={() => navigate(rolePaths.staffManagement[role])}>
                       <svg xmlns="http://www.w3.org/2000/svg" width="94" height="52" viewBox="0 0 94 52" fill="none">
                                                   <path d="M58.2 14C58.2 7.81441 53.1856 2.8 47 2.8C40.8144 2.8 35.8 7.81441 35.8 14C35.8 20.1856 40.8144 25.2 47 25.2V28C39.268 28 33 21.732 33 14C33 6.26801 39.268 0 47 0C54.732 0 61 6.26801 61 14C61 21.732 54.732 28 47 28V25.2C53.1856 25.2 58.2 20.1856 58.2 14Z" fill="white"/>
                                                   <path d="M70.5625 52C71.3564 52 72.004 51.3559 71.9618 50.5631C71.8062 47.6399 71.1768 44.7614 70.097 42.0502C68.8406 38.8958 66.9991 36.0295 64.6777 33.6152C62.3562 31.2009 59.6002 29.2858 56.5671 27.9791C53.5339 26.6725 50.283 26 47 26C43.717 26 40.4661 26.6725 37.4329 27.9791C34.3998 29.2858 31.6438 31.2009 29.3223 33.6152C27.0009 36.0295 25.1594 38.8958 23.903 42.0502C22.8232 44.7614 22.1938 47.6399 22.0382 50.5632C21.996 51.3559 22.6436 52 23.4375 52V52C24.2314 52 24.8705 51.3558 24.9182 50.5634C25.0704 48.033 25.6238 45.5428 26.5592 43.1945C27.671 40.4028 29.3008 37.8661 31.3553 35.7295C33.4098 33.5928 35.8488 31.8979 38.5331 30.7415C41.2175 29.5852 44.0945 28.99 47 28.99C49.9055 28.99 52.7825 29.5852 55.4669 30.7415C58.1512 31.8979 60.5902 33.5928 62.6447 35.7295C64.6992 37.8661 66.3289 40.4028 67.4408 43.1945C68.3761 45.5428 68.9296 48.033 69.0818 50.5634C69.1295 51.3558 69.7686 52 70.5625 52V52Z" fill="white"/>

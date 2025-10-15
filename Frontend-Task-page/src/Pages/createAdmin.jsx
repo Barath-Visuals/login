@@ -3,70 +3,57 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import styles from '../StyleSCSS/Login.module.scss';
 
-export default function Login({ onLogin }) {
+export default function CreateAdmin() {
 
     const [showPassword, setShowPassword] = useState(false);
     const[password, setPassword] = useState("");
     const [username, setUserName] = useState("");
+    const [setupKey, setSetupKey] = useState("");
+    const [message, setMessage] = useState("");
+    const [loading, setLoading] = useState(false)
     const navigate = useNavigate()
 
-    const handleLogin = async (e) => {
+    const handleSignUp = async (e) => {
         e.preventDefault();
-        try {
-            const response = await axios.post(`${import.meta.env.VITE_API_PATH}login`, { username, password });
-            const { access_token, user } = response.data;
+        
+        if(!username || !password || !setupKey) {
+            setMessage("Please fill all fields")
+            return;
+        }
 
-            localStorage.setItem("token", access_token);
-            localStorage.setItem("user", JSON.stringify(user));
-            localStorage.setItem('username', user.username);
-            localStorage.setItem("role", user.role);
+        try{
+            setLoading(true)
+            setMessage("")
 
+            const res = await axios.post(`${import.meta.env.VITE_API_PATH}signup`, {
+                username,
+                password,
+                setup_key : setupKey,
+            });
 
-            onLogin({ user, token: access_token });
-
-            if (user.role === "admin") navigate("/admin");
-            // Check if profile complete here (example: user.profileComplete flag)
-            if (user.profileComplete) navigate("/home");
-            else navigate("/profile-update");
-
-
-
-            setPassword("");
+            setTimeout(() => navigate("/login"), 1500);
+            setMessage("Admin created successfully! Redirecting...")
         } catch (error) {
-            //alert(error.response?.data?.detail || "login failed");
-            console.error("Login error:", error);
+            if (error.response) {
+                setMessage(`${error.response.data.detail || "Error creating admin"}`);
+            } else {
+                setMessage (" Network failed, Try again")
+            }
+        } finally {
+            setLoading(false)
         }
     };
-
-
-    useEffect(() => {
-        const userStored = localStorage.getItem("user");
-        if (userStored) {
-            const userObj = JSON.parse(userStored);
-            const isProfileComplete = userObj.name && userObj.age && userObj.phone && userObj.address;
-            
-            if (isProfileComplete) {
-                if (userObj.role === "admin") navigate("/admin");
-                else navigate("/home");
-            } else {
-                navigate("/profile-update");
-            }
-        }
-    }, []);
-
-
-
 
     return(
         <main style={{width: "100vw", height: "100vh", backgroundColor: "black" }}>
             <div className={styles.login}>
-                <form className={styles.loginContainer} onSubmit={handleLogin}>
+                <form className={styles.loginContainer} onSubmit={handleSignUp}>
                     <div className={styles.head}>
                         <h1>
-                            LGSS
+                            Create Admin
                         </h1>
                         <p>
-                            Login to take attendance
+                            This portal is for creating first Admin
                         </p>
                     </div>
                     <div className={styles.inputContainer}>
@@ -92,18 +79,22 @@ export default function Login({ onLogin }) {
                                 }
                             </span>
                         </div>
+                            <input type="text" placeholder="Setup Key" className={styles.input} value={setupKey} onChange={(e) => setSetupKey(e.target.value)} />
                     </div>
                     <div className={styles.buttonContainer}>
-                        <button className={styles.button} onClick={handleLogin}>Login.</button>
+                        <button className={styles.button} type='submit' disabled={loading} onClick={handleSignUp}>
+                            {loading ? "Creating" : "Create Admin"}
+                        </button>
                     </div>
+                    {message && <p style={{marginTop : "10px"}} className={styles.message}>{message}</p>}
                 </form>
             </div>
             <div className={styles.buttonContainer}>
                 <button
                     type='button'
                     className={styles.button}
-                    onClick={() => navigate("/createAdmin")}
-                >Create Admin</button>
+                    onClick={() => navigate("/login")}
+                >Login</button>
             </div>
         </main>
     )

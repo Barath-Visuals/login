@@ -1,31 +1,12 @@
-import React from 'react';
-import { useEffect, useState } from 'react';
 import styles from "../StyleSCSS/dashboard.module.scss";
-import axios from 'axios';
 
-export default function OnTime() {
-    const [onTime, setOnTime] = useState([0]);
 
-    useEffect(() => {
-        const fetchOnTime = async () => {
-            try{
-                const token = localStorage.getItem('token');
-                const response = await axios.get('http://127.0.0.1:8000/attendance_summary', {
-                    headers: {Authorization: `Bearer ${token}`}
-                })
-                setOnTime(response.data.on_time_count)
-
-            } catch (error) {
-                console.error('Error fetching total days:', error)
-            }
-        }
-        fetchOnTime();
-    }, []);
+export default function OnTime({onTime}) {
     return(
         <div className={styles.Container}>
             <div className={styles.text}>
                 <span className={styles.span}>On Time</span>
-                <h1 className={styles.h1}>{onTime || 0}</h1>
+                <h1 className={styles.h1}>{onTime}</h1>
             </div>
             <div className={styles.icon}>
                 <div className={styles.icon_n}>

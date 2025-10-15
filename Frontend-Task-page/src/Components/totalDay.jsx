@@ -1,30 +1,11 @@
-import React from 'react';
-import { useEffect, useState } from 'react';
-import axios from 'axios';
 import styles from "../StyleSCSS/dashboard.module.scss";
 
-export default function TotalDays() {
-    const [totalDays, setTotalDays] = useState(0);
-
-    useEffect(() => {
-        const fetchTotalDays = async () =>{
-            try{
-                const token = localStorage.getItem('token');
-                const response = await axios.get('http://127.0.0.1:8000/attendance_summary', {
-                    headers: {Authorization: `Bearer ${token}`}
-                });
-                setTotalDays(response.data.total_days)
-            } catch (error) {
-                console.error('Error fetching total days:', error)
-            }
-        }
-        fetchTotalDays();
-    }, []);
+export default function TotalDays({total}) {
     return(
         <div className={styles.Container}>
             <div className={styles.text}>
                 <span className={styles.span}>Total Days</span>
-                <h1 className={styles.h1}>{totalDays}</h1>
+                <h1 className={styles.h1}>{total}</h1>
             </div>
             <div className={styles.icon}>
                 <div className={styles.icon_n}>
