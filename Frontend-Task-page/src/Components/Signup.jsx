@@ -26,7 +26,7 @@ export default function Signup () {
                 setStatusCode(200);
                 setShowAlert(true);
 
-                //sessionStorage.setItem("newUserCreated", "true");
+                sessionStorage.setItem("newUserCreated", "true");
                 setFormData({ username: "", password: "" });
             }, 50);
             }
