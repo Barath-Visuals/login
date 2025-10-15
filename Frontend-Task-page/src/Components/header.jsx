@@ -15,7 +15,7 @@ export default function Header() {
         const getUser = async () =>{
             try{
                 const token = localStorage.getItem('token');
-                const response = await axios.get('http://127.0.0.1:8000/user/profile', {
+                const response = await axios.get(`${import.meta.env.VITE_API_PATH}/user/profile`, {
                     headers: {Authorization: `Bearer ${token}`}
                 })
                 setUser(response.data);

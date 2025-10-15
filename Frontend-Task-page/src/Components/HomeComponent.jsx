@@ -20,19 +20,19 @@ export default function HomeComponent ({role}) {
         const fetchData = async () => {
         try {
             const summaryRes = await axios.get(
-            "http://127.0.0.1:8000/attendance_summary",
+            `${import.meta.env.VITE_API_PATH}/attendance_summary`,
             { headers: { Authorization: `Bearer ${token}` } }
             );
             setAttendanceSummary(summaryRes.data);
 
             const logsRes = await axios.get(
-            `http://localhost:8000/attendance_logs/${username}`,
+            `${import.meta.env.VITE_API_PATH}attendance_logs/${username}`,
             { headers: { Authorization: `Bearer ${token}` } }
             );
             setLogs(logsRes.data.logs);
 
             if (role === "Designer") {
-            const entriesRes = await axios.get(`http://localhost:8000/clientDashboard`, {
+            const entriesRes = await axios.get(`${import.meta.env.VITE_API_PATH}clientDashboard`, {
                 params: { limit: 16 },
             });
             setEntries(entriesRes.data);

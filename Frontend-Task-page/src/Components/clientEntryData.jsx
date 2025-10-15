@@ -28,7 +28,7 @@ export default function ClientEntryData ({onEntryUpdated, searchText, reload, st
         setLoading(true);
         const StartTime = Date.now()
         try {
-            const response = await axios.get(`http://localhost:8000/clientDashboard`,{
+            const response = await axios.get(`${import.meta.env.VITE_API_PATH}clientDashboard`,{
                     headers: {Authorization: `Bearer ${token}`,
                 },
                 params: {
@@ -56,7 +56,7 @@ export default function ClientEntryData ({onEntryUpdated, searchText, reload, st
 
     const handleUpdate = async(client) => {
         try {
-            await axios.put(`http://localhost:8000/clientEntry/${client.entry_id}`, {
+            await axios.put(`${import.meta.env.VITE_API_PATH}clientEntry/${client.entry_id}`, {
                 start_date: editStart,
                 end_date: editEnd
             }, 

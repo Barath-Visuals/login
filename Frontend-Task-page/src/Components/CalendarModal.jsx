@@ -11,7 +11,7 @@ const CalendarModal = ({ username, onClose }) => {
   useEffect(() => {
     const fetchLogs = async () => {
       try {
-        const res = await axios.get(`http://localhost:8000/attendance_logs/${username}`, {
+        const res = await axios.get(`${import.meta.env.VITE_API_PATH}attendance_logs/${username}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },

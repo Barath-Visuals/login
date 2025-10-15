@@ -28,7 +28,7 @@ export default function AppRoutes() {
       }
 
       try {
-        const res = await axios.get("http://localhost:8000/user/profile", {
+        const res = await axios.get(`${import.meta.env.VITE_API_PATH}user/profile`, {
           headers: {
             Authorization: `Bearer ${storedToken}`, // ✅ Must include Bearer!
           },
@@ -57,7 +57,7 @@ export default function AppRoutes() {
     localStorage.setItem("user", JSON.stringify(user));
 
     try {
-      const res = await axios.get("http://localhost:8000/user/profile", {
+      const res = await axios.get(`${import.meta.env.VITE_API_PATH}user/profile`, {
         headers: {
           Authorization: `Bearer ${token}`, // ✅ Must include Bearer!
         }

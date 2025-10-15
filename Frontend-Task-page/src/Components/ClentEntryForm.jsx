@@ -30,7 +30,7 @@ export default function ClientEntryForm ({ onEntryAdded }) {
         e.preventDefault();
         try{
             //const token = localStorage.getItem("token")
-            const response = await axios.post("http://127.0.0.1:8000/clientEntry", formData);
+            const response = await axios.post(`${import.meta.env.VITE_API_PATH}/clientEntry`, formData);
             console.log(response.data.message);
 
 

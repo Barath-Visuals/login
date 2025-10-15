@@ -47,7 +47,7 @@ export default function ShowUserDetails ({user}) {
             }
 
             await axios.post(
-            `http://localhost:8000/admin/reset-password`,
+            `${import.meta.env.VITE_API_PATH}admin/reset-password`,
             { username: editedUser.username, newPassword: editedUser.newPassword },
             { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
             );
@@ -68,7 +68,7 @@ export default function ShowUserDetails ({user}) {
             aadhaar: editedUser.aadhaar || "",
             };
 
-            await axios.post(`http://localhost:8000/admin/profile/update`, payload, {
+            await axios.post(`${import.meta.env.VITE_API_PATH}admin/profile/update`, payload, {
             headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
             });
 

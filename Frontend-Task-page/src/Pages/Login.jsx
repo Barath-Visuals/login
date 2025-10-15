@@ -13,7 +13,7 @@ export default function Login({ onLogin }) {
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post("http://localhost:8000/login", { username, password });
+            const response = await axios.post(`${import.meta.env.VITE_API_PATH}login`, { username, password });
             const { access_token, user } = response.data;
 
             localStorage.setItem("token", access_token);

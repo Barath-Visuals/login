@@ -33,7 +33,7 @@ export default function Staff_Admin() {
 
     const deleteUser = async (username) => {
         try{
-            const response = await axios.delete(`http://localhost:8000/users/${username}`,{
+            const response = await axios.delete(`${import.meta.env.VITE_API_PATH}users/${username}`,{
                 headers: { "Authorization": `Bearer ${token}`}
             });
             if (response.status === 200) {
@@ -53,7 +53,7 @@ export default function Staff_Admin() {
 
     const handleUpdate = async (username) => {
         try{
-            const response = await axios.post(`http://localhost:8000/update-role`, {
+            const response = await axios.post(`${import.meta.env.VITE_API_PATH}update-role`, {
                 username: username,
                 role : editRole,
                 isStatus : editStatus
@@ -118,7 +118,7 @@ export default function Staff_Admin() {
 
         const startTime = Date.now()
         try{
-            const response = await axios.get(`http://localhost:8000/getUser`, {
+            const response = await axios.get(`${import.meta.env.VITE_API_PATH}getUser`, {
                 headers: { "Authorization": `Bearer ${token}`}
             });
 

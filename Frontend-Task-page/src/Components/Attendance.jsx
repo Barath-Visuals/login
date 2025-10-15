@@ -51,7 +51,7 @@ export default function Attendance() {
     useEffect(() =>{
         const fetchLogs = async () =>{
             try {
-                const response = await axios.get(`http://localhost:8000/attendance_logs/${username}`, {
+                const response = await axios.get(`${import.meta.env.VITE_API_PATH}attendance_logs/${username}`, {
                         headers: {Authorization: `Bearer ${token}`,
                     }
                 });

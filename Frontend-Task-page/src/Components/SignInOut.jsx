@@ -13,7 +13,7 @@ export default function SignInOut() {
     useEffect(() => {
         const checkStatus = async () => {
             try{
-                const res = await axios.get("http://127.0.0.1:8000/auth/status", {
+                const res = await axios.get(`${import.meta.env.VITE_API_PATH}/auth/status`, {
                     headers : {"Authorization" : `Bearer ${token}`}
                 })
                 setSignedIn(res.data.signed_in)
@@ -31,7 +31,7 @@ export default function SignInOut() {
 
         try {
             if (!signedIn){
-                const res = await axios.post("http://127.0.0.1:8000/auth/signin", {}, {
+                const res = await axios.post("${import.meta.env.VITE_API_PATH}/auth/signin", {}, {
                         headers : {"Authorization" : `Bearer ${token}`,
                     },
                 })
@@ -39,7 +39,7 @@ export default function SignInOut() {
                 setMessage(res.data.message);
                 setSignedIn(true);
             } else {
-                const res = await axios.post("http://127.0.0.1:8000/auth/signout",{}, { 
+                const res = await axios.post("${import.meta.env.VITE_API_PATH}/auth/signout",{}, { 
                     headers : {"Authorization" : `Bearer ${token}`}
                 })
         

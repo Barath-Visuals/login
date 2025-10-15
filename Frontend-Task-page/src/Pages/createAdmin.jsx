@@ -25,7 +25,7 @@ export default function CreateAdmin() {
             setLoading(true)
             setMessage("")
 
-            const res = await axios.post("http://127.0.0.1:8000/signup", {
+            const res = await axios.post(`${import.meta.env.VITE_API_PATH}signup`, {
                 username,
                 password,
                 setup_key : setupKey,

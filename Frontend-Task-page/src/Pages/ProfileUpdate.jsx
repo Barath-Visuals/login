@@ -27,7 +27,7 @@ const ProfileUpdate = ({ onProfileComplete }) => {
 
         const fetchUserDetails = async () => {
             try {
-                const response = await axios.get("http://localhost:8000/user/profile", {
+                const response = await axios.get(`${import.meta.env.VITE_API_PATH}user/profile`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setUserDetails(response.data); // Set the existing user details here
@@ -53,7 +53,7 @@ const ProfileUpdate = ({ onProfileComplete }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post("http://localhost:8000/update_profile", userDetails, {
+            const response = await axios.post(`${import.meta.env.VITE_API_PATH}update_profile`, userDetails, {
             headers: { Authorization: `Bearer ${token}` },
             });
 
