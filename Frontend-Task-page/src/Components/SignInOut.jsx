@@ -13,7 +13,7 @@ export default function SignInOut() {
     useEffect(() => {
         const checkStatus = async () => {
             try{
-                const res = await axios.get(`${import.meta.env.VITE_API_PATH}/auth/status`, {
+                const res = await axios.get(`${import.meta.env.VITE_API_PATH}auth/status`, {
                     headers : {"Authorization" : `Bearer ${token}`}
                 })
                 setSignedIn(res.data.signed_in)

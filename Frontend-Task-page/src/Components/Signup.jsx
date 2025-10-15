@@ -17,7 +17,7 @@ export default function Signup () {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try{
-            const res = await axios.post(`${import.meta.env.VITE_API_PATH}/signup`, formData)
+            const res = await axios.post(`${import.meta.env.VITE_API_PATH}signup`, formData)
 
             if (res.status === 200 || res.data?.message) {
                 setShowAlert(false)

@@ -20,7 +20,7 @@ export default function HomeComponent ({role}) {
         const fetchData = async () => {
         try {
             const summaryRes = await axios.get(
-            `${import.meta.env.VITE_API_PATH}/attendance_summary`,
+            `${import.meta.env.VITE_API_PATH}attendance_summary`,
             { headers: { Authorization: `Bearer ${token}` } }
             );
             setAttendanceSummary(summaryRes.data);
