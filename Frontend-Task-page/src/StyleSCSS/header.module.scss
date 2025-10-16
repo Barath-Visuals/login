@@ -62,13 +62,13 @@
       color: white;
 
       .EmployeeId {
-        font-size: clamp(14px, 2vw, 1rem);
+        font-size: clamp(14px, 2vw, .9rem);
         margin-left: 1rem;
         font-weight: 600;
       }
 
       .roles {
-        font-size: clamp(0.7rem, 1.6vw, 0.9rem);
+        font-size: clamp(0.7rem, 1.6vw, 0.8rem);
         margin-left: 1rem;
         font-weight: 400;
         opacity: 0.75;

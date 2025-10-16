@@ -31,7 +31,7 @@ export default function SignInOut() {
 
         try {
             if (!signedIn){
-                const res = await axios.post("${import.meta.env.VITE_API_PATH}/auth/signin", {}, {
+                const res = await axios.post(`${import.meta.env.VITE_API_PATH}auth/signin`, {}, {
                         headers : {"Authorization" : `Bearer ${token}`,
                     },
                 })
@@ -39,7 +39,7 @@ export default function SignInOut() {
                 setMessage(res.data.message);
                 setSignedIn(true);
             } else {
-                const res = await axios.post("${import.meta.env.VITE_API_PATH}/auth/signout",{}, { 
+                const res = await axios.post(`${import.meta.env.VITE_API_PATH}auth/signout`,{}, { 
                     headers : {"Authorization" : `Bearer ${token}`}
                 })
         

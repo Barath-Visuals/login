@@ -47,6 +47,48 @@ export default function AppRoutes() {
     checkUserProfile();
   }, []);
 
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      localStorage.removeItem("role");
+      localStorage.removeItem("username");
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return() => {
+      window.removeEventListener("beforeunload", handleBeforeUnload)
+    }
+  }, []);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token")
+    if (!token) {
+      navigate("/login")
+    }
+  }, [])
+
+  useEffect(() => {
+    const sessionFlag = sessionStorage.getItem("sessionActive")
+
+    if (!sessionFlag) {
+      localStorage.removeItem("token")
+      localStorage.removeItem("user")
+      localStorage.removeItem("role")
+      localStorage.removeItem("username")
+
+      sessionStorage.setItem("sessionActive", "true")
+    }
+
+    const handleBeforeUnload = () => {
+      window.addEventListener("beforeunload", handleBeforeUnload)
+    }
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload)
+    }
+  }, []);
+
   if (user === undefined || profileComplete === undefined) {
     return <div style={{width : "100%", height : "100%", display : "flex", alignItems : "center", justifyContent : "center", fontSize : "14px", color : "white"}}>Loading...</div>;
   }

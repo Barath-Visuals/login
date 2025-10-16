@@ -48,7 +48,7 @@ export default function HomeComponent ({role}) {
         if (token) fetchData();
     }, [role, token, username]);
 
-    if (loading) return <p>Loading...</p>;
+    if (loading) return <p style={{textAlign : "center", justifyContent : "center", width : "100%", height : "100%"}}>Loading...</p>;
     if (error) return <p>{error}</p>;
     return(
         <div className={styles.contentArea}>
