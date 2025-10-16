@@ -234,7 +234,7 @@ export default function Staff_Admin() {
                                         </td>
 
                                         <td className={styles.staffTable__td}>
-                                            {isEditing && role === "admin" ? (
+                                            {isEditing && role === "admin" && role === "HR" ? (
                                                 <select
                                                 value={editRole}
                                                 onChange={(e) => setEditRole(e.target.value)}
@@ -262,7 +262,7 @@ export default function Staff_Admin() {
                                         </td>
             
                                         <td className={styles.staffTable__td}>
-                                            {isEditing && role === "admin" ? (
+                                            {isEditing && role === "admin" && role === "HR" ? (
                                                 <select
                                                 value={editStatus}
                                                 onChange={(e) => setEditStatus(e.target.value)}
