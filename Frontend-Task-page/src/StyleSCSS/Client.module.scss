@@ -320,7 +320,7 @@
     }
 
     .popUpBoxContain .popUpBox {
-      width: 90%;
+      width: auto;
     }
   }
 }
@@ -343,6 +343,11 @@
     .client {
       font-size: 0.8rem;
       padding: 5px;
+    }
+
+    .popUpBoxContain .popUpBox {
+      width: 85%;
+      padding: 10px;
     }
   }
 }
