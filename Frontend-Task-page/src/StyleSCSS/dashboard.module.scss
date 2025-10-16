@@ -13,7 +13,7 @@
         padding: clamp(16px, 2vw, 22px);
         border-radius: 14px;
         width: 100%;
-        max-width: 350px;
+        max-width: 320px;
         min-width: 260px;
         box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.35);
         transition: all 0.3s ease;
@@ -44,7 +44,7 @@
                 }
 
                 span {
-                    font-size: clamp(0.85rem, 1.5vw, 1rem);
+                    font-size: clamp(12px, 1.5vw, 14px);
                     font-weight: 500;
                     color: #6c63ff;
                     padding: 4px 8px ;
@@ -62,7 +62,6 @@
             height: 45px;
             background-color: #2a2a2a;
             border-radius: 12px;
-            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.4);
             transition: all 0.3s ease;
 
             .icon_n{
@@ -133,7 +132,7 @@
   background: #101010 !important;
   border-bottom: 1px solid #2a2a2a;
   text-align: center;
-  font-size: 16px;
+  font-size: 14px !important;
   font-weight: 600;
   color: #ffffff;
   white-space: nowrap;
@@ -142,7 +141,7 @@
 .homeEntry_td {
     text-align: center;
   padding: 14px 18px;
-  font-size: 15px;
+  font-size: 14px !important;
   color: #FAF9F6;
   background-color: #1f1f1f !important;
   border-bottom: 1px solid #2a2a2a;

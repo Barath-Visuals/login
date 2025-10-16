@@ -240,7 +240,7 @@ export default function ShowUserDetails ({user}) {
                             <Calendar username = {selectedUsername} />
                             <button className={styles.closeBtn} onClick = {handleCloseCalendar} >
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12" fill="none">
-                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M11.1404 1.80676L10.1937 0.860107L6.00035 5.06011L1.80701 0.860107L0.860352 1.80676L5.06035 6.00011L0.860352 10.1935L1.80701 11.1401L6.00035 6.94011L10.1937 11.1401L11.1404 10.1935L6.94035 6.00011L11.1404 1.80676Z" fill="#000000ff"/>
+                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M11.1404 1.80676L10.1937 0.860107L6.00035 5.06011L1.80701 0.860107L0.860352 1.80676L5.06035 6.00011L0.860352 10.1935L1.80701 11.1401L6.00035 6.94011L10.1937 11.1401L11.1404 10.1935L6.94035 6.00011L11.1404 1.80676Z" fill="#ffffffff"/>
                                 </svg>
                             </button>
                         </div>

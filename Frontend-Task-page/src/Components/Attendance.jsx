@@ -75,7 +75,7 @@ export default function Attendance() {
 
     
 
-    if (loading) return <div>logging logs....</div>
+    if (loading) return <div style={{justifyContent : "center",textAlign : "center", padding : "10px", width : "100%", height : "100%"}}>logging logs....</div>
     if (error) return <div>Error {error}</div>
  
     return(
@@ -97,7 +97,11 @@ export default function Attendance() {
                     </tr>
                     </thead>
                     <tbody className={styles.homeAttendance_tbody}>
-                    {(Array.isArray(logs) ? logs : []).map((log, index) => {
+                    {logs.length === 0 ? (
+                        <tr className={styles.entryTable__emptyRow}>
+                            <td className={styles.entryTable__emptyCell} style={{fontSize : "14px" ,textAlign : "center", padding : "10px", color : "white"}} colSpan="6"><span className={styles.empty}>No data available</span></td>
+                        </tr>
+                    ) : (Array.isArray(logs) ? logs : []).map((log, index) => {
                         const { formatDate, formatTime: loginTime } = log.login_time
                         ? formatIst(log.login_time)
                         : { formatDate: "-", formatTime: "-" };
