@@ -58,7 +58,7 @@ def signin (current_user : dict = Depends(get_current_user)):
         login_type = "absent"
         arrival_status = "leave"
 
-    start_of_day_ist = datetime(now_ist.year, now_ist.month, now_ist.day, tzinfo=ZoneInfo("Asia/Kolkata"))
+    start_of_day_ist = datetime(now_ist.year, now_ist.month, now_ist.day, 0, 0, 0, tzinfo=ZoneInfo("Asia/Kolkata"))
     end_of_day_ist = start_of_day_ist + timedelta(days=1)
     start_of_day_utc = start_of_day_ist.astimezone(timezone.utc)
     end_of_day_utc = end_of_day_ist.astimezone(timezone.utc)
@@ -68,7 +68,7 @@ def signin (current_user : dict = Depends(get_current_user)):
         "login_time": {"$gte": start_of_day_utc, "$lt": end_of_day_utc}
     })
 
-    if already_today and current_user["role"] not in ["admin", "HR", "Manager"]:
+    if already_today and current_user["role"] not in ["admin"]:
         raise HTTPException(status_code = 403, detail = "You have already signed in today")
     
     now_utc = now_ist.astimezone(timezone.utc)
